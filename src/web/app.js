@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-    res.send("HEdClass Web App Running");
+    res.render("index");
 });
 
 app.listen(PORT, () => {
