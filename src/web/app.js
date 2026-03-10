@@ -1,7 +1,11 @@
 const express = require("express");
 const path = require("path");
-
 const db = require("./models/db");
+// Import express-session to maintain login state
+const session = require("express-session");
+
+const authRoutes = require("./routes/authRoutes");
+
 
 const app = express();
 const PORT = 4000;
@@ -11,6 +15,14 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: "hedclass_secret_key", // secret used to sign the session cookie
+    resave: false,                 // prevents unnecessary session saves
+    saveUninitialized: false       // don't create sessions until something stored
+}));
+
+app.use("/", authRoutes);
 
 app.get("/", (req, res) => {
     res.render("index");
