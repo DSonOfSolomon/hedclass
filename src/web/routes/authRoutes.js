@@ -10,7 +10,11 @@ router.get("/login", authController.showLogin);
 router.post("/login", authController.login);
 
 // Dashboard route
-router.get("/dashboard",authMiddleware.isAuthenticated, authController.dashboard);
+router.get(
+  "/dashboard",
+  authMiddleware.isAuthenticated,
+  authController.dashboard
+);
 
 // Logout route
 router.get("/logout", authController.logout);

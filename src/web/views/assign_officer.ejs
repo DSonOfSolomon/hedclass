@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Assign Officer to Degree</title>
+</head>
+
+<body>
+
+<h1>Assign Officer to Degree</h1>
+
+<form action="/admin/assign" method="POST">
+
+<label>Select Officer</label>
+<br>
+
+<select name="officer_id">
+
+<% officers.forEach(function(officer){ %>
+
+<option value="<%= officer.id %>">
+<%= officer.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<label>Select Degree</label>
+<br>
+
+<select name="degree_id">
+
+<% degrees.forEach(function(degree){ %>
+
+<option value="<%= degree.id %>">
+<%= degree.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<button type="submit">Assign</button>
+
+</form>
+
+</body>
+</html>
