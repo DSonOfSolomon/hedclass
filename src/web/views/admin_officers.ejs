@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Classification Officers</title>
+</head>
+<body>
+
+<h1>Classification Officers</h1>
+
+<a href="/admin/officers/create">Create New Officer</a>
+
+<br><br>
+
+<table border="1">
+
+<tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Action</th>
+</tr>
+
+<% officers.forEach(function(officer){ %>
+
+<tr>
+    <td><%= officer.id %></td>
+    <td><%= officer.name %></td>
+    <td><%= officer.email %></td>
+    <td>
+        <a href="/admin/officers/delete/<%= officer.id %>">Delete</a>
+    </td>
+</tr>
+
+<% }) %>
+
+</table>
+
+</body>
+</html>
