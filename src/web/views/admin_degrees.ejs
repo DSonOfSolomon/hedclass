@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Degrees</title>
+</head>
+
+<body>
+
+<h1>Degree Programmes</h1>
+
+<a href="/admin/degrees/create">Create Degree</a>
+
+<br><br>
+
+<table border="1">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Description</th>
+<th>Action</th>
+</tr>
+
+<% degrees.forEach(function(degree){ %>
+
+<tr>
+<td><%= degree.id %></td>
+<td><%= degree.name %></td>
+<td><%= degree.description %></td>
+
+<td>
+<a href="/admin/degrees/delete/<%= degree.id %>">Delete</a>
+</td>
+
+</tr>
+
+<% }) %>
+
+</table>
+
+</body>
+</html>

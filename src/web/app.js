@@ -5,6 +5,7 @@ const session = require("express-session");
 
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const degreeRoutes = require("./routes/degreeRoutes")
 
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(session({
 
 app.use("/", adminRoutes);
 app.use("/", authRoutes);
+app.use("/", degreeRoutes);
 
 app.get("/", (req, res) => {
     res.render("index");
