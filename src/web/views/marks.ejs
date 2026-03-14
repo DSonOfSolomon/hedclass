@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Marks</title>
+</head>
+
+<body>
+
+<h1>Module Marks</h1>
+
+<a href="/marks/create">Add Mark</a>
+
+<br><br>
+
+<table border="1">
+
+<tr>
+<th>Student</th>
+<th>Module</th>
+<th>Mark</th>
+<th>Resit</th>
+</tr>
+
+<% marks.forEach(function(mark){ %>
+
+<tr>
+
+<td><%= mark.student_name %></td>
+<td><%= mark.module_name %></td>
+<td><%= mark.mark %></td>
+<td><%= mark.is_resit ? "Yes" : "No" %></td>
+
+</tr>
+
+<% }) %>
+
+</table>
+
+</body>
+</html>

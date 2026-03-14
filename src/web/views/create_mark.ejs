@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add Mark</title>
+</head>
+
+<body>
+
+<h1>Add Module Mark</h1>
+
+<form action="/marks/create" method="POST">
+
+<label>Student</label><br>
+
+<select name="student_id">
+
+<% students.forEach(function(student){ %>
+
+<option value="<%= student.id %>">
+<%= student.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<label>Module</label><br>
+
+<select name="module_id">
+
+<% modules.forEach(function(module){ %>
+
+<option value="<%= module.id %>">
+<%= module.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<label>Mark</label><br>
+<input type="number" name="mark" required>
+
+<br><br>
+
+<label>Resit?</label>
+<input type="checkbox" name="is_resit">
+
+<br><br>
+
+<button type="submit">Save Mark</button>
+
+</form>
+
+</body>
+</html>

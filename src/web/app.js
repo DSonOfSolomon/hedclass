@@ -8,6 +8,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const degreeRoutes = require("./routes/degreeRoutes")
 const studentRoutes = require("./routes/studentRoutes");
 const moduleRoutes = require("./routes/moduleRoutes");
+const markRoutes = require("./routes/markRoutes");
 
 
 
@@ -32,6 +33,7 @@ app.use("/", authRoutes);
 app.use("/", degreeRoutes);
 app.use("/", studentRoutes);
 app.use("/", moduleRoutes);
+app.use("/", markRoutes);
 
 app.get("/", (req, res) => {
     res.render("index");
