@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Student</title>
+</head>
+
+<body>
+
+<h1>Edit Student</h1>
+
+<form action="/students/update/<%= student.id %>" method="POST">
+
+<label>Name</label><br>
+<input type="text" name="name" value="<%= student.name %>" required><br><br>
+
+<label>Student Number</label><br>
+<input type="text" name="student_number" value="<%= student.student_number %>" required><br><br>
+
+<label>Degree</label><br>
+
+<select name="degree_id">
+
+<% degrees.forEach(function(degree){ %>
+
+<option value="<%= degree.id %>" <%= student.degree_id == degree.id ? "selected" : "" %>>
+<%= degree.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<button type="submit">Update Student</button>
+
+</form>
+
+</body>
+</html>

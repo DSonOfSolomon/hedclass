@@ -1,45 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Students</title>
-</head>
+  <head>
+    <title>Students</title>
+  </head>
 
-<body>
+  <body>
+    <h1>Student Cohort</h1>
 
-<h1>Student Cohort</h1>
+    <a href="/students/create">Add Student</a>
 
-<a href="/students/create">Add Student</a>
+    <br /><br />
 
-<br><br>
+    <table border="1">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Student Number</th>
+        <th>Degree</th>
+        <th>Action</th>
+      </tr>
 
-<table border="1">
+      <% students.forEach(function(student){ %>
 
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Student Number</th>
-<th>Degree</th>
-<th>Action</th>
-</tr>
+      <tr>
+        <td><%= student.id %></td>
+        <td><%= student.name %></td>
+        <td><%= student.student_number %></td>
+        <td><%= student.degree_name %></td>
 
-<% students.forEach(function(student){ %>
+        <td>
+          <a href="/students/edit/<%= student.id %>">Edit</a>
 
-<tr>
+          |
 
-<td><%= student.id %></td>
-<td><%= student.name %></td>
-<td><%= student.student_number %></td>
-<td><%= student.degree_name %></td>
+          <a href="/students/delete/<%= student.id %>">Delete</a>
+        </td>
+      </tr>
 
-<td>
-<a href="/students/delete/<%= student.id %>">Delete</a>
-</td>
-
-</tr>
-
-<% }) %>
-
-</table>
-
-</body>
+      <% }) %>
+    </table>
+  </body>
 </html>

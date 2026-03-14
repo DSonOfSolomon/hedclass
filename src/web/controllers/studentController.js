@@ -71,6 +71,68 @@ exports.createStudent = (req, res) => {
 
 };
 
+/*
+Show edit student form
+*/
+exports.showEditStudent = (req, res) => {
+
+    const id = req.params.id;
+
+    const studentQuery = "SELECT * FROM students WHERE id = ?";
+    const degreeQuery = "SELECT * FROM degrees";
+
+    db.query(studentQuery, [id], (err, studentResult) => {
+
+        if (err) {
+            console.error(err);
+            return res.send("Database error");
+        }
+
+        db.query(degreeQuery, (err, degrees) => {
+
+            if (err) {
+                console.error(err);
+                return res.send("Database error");
+            }
+
+            res.render("edit_student", {
+                student: studentResult[0],
+                degrees
+            });
+
+        });
+
+    });
+
+};
+
+/*
+Update student
+*/
+exports.updateStudent = (req, res) => {
+
+    const id = req.params.id;
+    const { name, student_number, degree_id } = req.body;
+
+    const sql = `
+    UPDATE students
+    SET name = ?, student_number = ?, degree_id = ?
+    WHERE id = ?
+    `;
+
+    db.query(sql, [name, student_number, degree_id, id], (err) => {
+
+        if (err) {
+            console.error(err);
+            return res.send("Error updating student");
+        }
+
+        res.redirect("/students");
+
+    });
+
+};
+
 
 /*
 Delete student
