@@ -4,65 +4,108 @@ const db = require("../models/db");
 List all modules
 */
 exports.listModules = (req, res) => {
-
-    const sql = `
+  const sql = `
     SELECT modules.*, degrees.name AS degree_name
     FROM modules
     LEFT JOIN degrees ON modules.degree_id = degrees.id
     `;
 
-    db.query(sql, (err, results) => {
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
 
-        if (err) {
-            console.error(err);
-            return res.send("Database error");
-        }
-
-        res.render("modules", { modules: results });
-
-    });
-
+    res.render("modules", { modules: results });
+  });
 };
-
 
 /*
 Show create module form
 */
 exports.showCreateModule = (req, res) => {
+  const sql = "SELECT * FROM degrees";
 
-    const sql = "SELECT * FROM degrees";
+  db.query(sql, (err, degrees) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
 
-    db.query(sql, (err, degrees) => {
-
-        if (err) {
-            console.error(err);
-            return res.send("Database error");
-        }
-
-        res.render("create_module", { degrees });
-
-    });
-
+    res.render("create_module", { degrees });
+  });
 };
-
 
 /*
 Create module
 */
 exports.createModule = (req, res) => {
+  const { name, credits, year, degree_id } = req.body;
 
-    const { name, credits, year, degree_id } = req.body;
-
-    const sql = `
+  const sql = `
     INSERT INTO modules (name, credits, year, degree_id)
     VALUES (?, ?, ?, ?)
     `;
 
-    db.query(sql, [name, credits, year, degree_id], (err) => {
+  db.query(sql, [name, credits, year, degree_id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error creating module");
+    }
+
+    res.redirect("/modules");
+  });
+};
+
+/*
+Show edit module form
+*/
+exports.showEditModule = (req, res) => {
+  const id = req.params.id;
+
+  const moduleQuery = "SELECT * FROM modules WHERE id = ?";
+  const degreeQuery = "SELECT * FROM degrees";
+
+  db.query(moduleQuery, [id], (err, moduleResult) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
+
+    db.query(degreeQuery, (err, degrees) => {
+      if (err) {
+        console.error(err);
+        return res.send("Database error");
+      }
+
+      res.render("edit_module", {
+        module: moduleResult[0],
+        degrees,
+      });
+    });
+  });
+};
+
+/*
+Update module
+*/
+exports.updateModule = (req, res) => {
+
+    const id = req.params.id;
+
+    const { name, credits, year, degree_id } = req.body;
+
+    const sql = `
+    UPDATE modules
+    SET name = ?, credits = ?, year = ?, degree_id = ?
+    WHERE id = ?
+    `;
+
+    db.query(sql, [name, credits, year, degree_id, id], (err) => {
 
         if (err) {
             console.error(err);
-            return res.send("Error creating module");
+            return res.send("Error updating module");
         }
 
         res.redirect("/modules");
@@ -71,25 +114,20 @@ exports.createModule = (req, res) => {
 
 };
 
-
 /*
 Delete module
 */
 exports.deleteModule = (req, res) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const sql = "DELETE FROM modules WHERE id = ?";
 
-    const sql = "DELETE FROM modules WHERE id = ?";
+  db.query(sql, [id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error deleting module");
+    }
 
-    db.query(sql, [id], (err) => {
-
-        if (err) {
-            console.error(err);
-            return res.send("Error deleting module");
-        }
-
-        res.redirect("/modules");
-
-    });
-
+    res.redirect("/modules");
+  });
 };
