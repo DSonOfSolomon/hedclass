@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Mark</title>
+</head>
+
+<body>
+
+<h1>Edit Mark</h1>
+
+<form action="/marks/update/<%= mark.id %>" method="POST">
+
+<label>Student</label><br>
+
+<select name="student_id">
+
+<% students.forEach(function(student){ %>
+
+<option value="<%= student.id %>" <%= mark.student_id == student.id ? "selected" : "" %>>
+<%= student.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<label>Module</label><br>
+
+<select name="module_id">
+
+<% modules.forEach(function(module){ %>
+
+<option value="<%= module.id %>" <%= mark.module_id == module.id ? "selected" : "" %>>
+<%= module.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<label>Mark</label><br>
+<input type="number" name="mark" value="<%= mark.mark %>" required>
+
+<br><br>
+
+<label>Resit</label>
+<input type="checkbox" name="is_resit" <%= mark.is_resit ? "checked" : "" %>>
+
+<br><br>
+
+<button type="submit">Update Mark</button>
+
+</form>
+
+</body>
+</html>
