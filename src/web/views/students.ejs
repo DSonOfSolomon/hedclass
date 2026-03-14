@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Students</title>
+</head>
+
+<body>
+
+<h1>Student Cohort</h1>
+
+<a href="/students/create">Add Student</a>
+
+<br><br>
+
+<table border="1">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Student Number</th>
+<th>Degree</th>
+<th>Action</th>
+</tr>
+
+<% students.forEach(function(student){ %>
+
+<tr>
+
+<td><%= student.id %></td>
+<td><%= student.name %></td>
+<td><%= student.student_number %></td>
+<td><%= student.degree_name %></td>
+
+<td>
+<a href="/students/delete/<%= student.id %>">Delete</a>
+</td>
+
+</tr>
+
+<% }) %>
+
+</table>
+
+</body>
+</html>

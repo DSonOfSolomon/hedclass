@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create Student</title>
+</head>
+
+<body>
+
+<h1>Add Student</h1>
+
+<form action="/students/create" method="POST">
+
+<label>Name</label><br>
+<input type="text" name="name" required><br><br>
+
+<label>Student Number</label><br>
+<input type="text" name="student_number" required><br><br>
+
+<label>Degree</label><br>
+
+<select name="degree_id">
+
+<% degrees.forEach(function(degree){ %>
+
+<option value="<%= degree.id %>">
+<%= degree.name %>
+</option>
+
+<% }) %>
+
+</select>
+
+<br><br>
+
+<button type="submit">Create Student</button>
+
+</form>
+
+</body>
+</html>
