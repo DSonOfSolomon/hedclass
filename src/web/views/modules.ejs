@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Modules</title>
+</head>
+
+<body>
+
+<h1>Modules</h1>
+
+<a href="/modules/create">Add Module</a>
+
+<br><br>
+
+<table border="1">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Credits</th>
+<th>Year</th>
+<th>Degree</th>
+<th>Action</th>
+</tr>
+
+<% modules.forEach(function(module){ %>
+
+<tr>
+
+<td><%= module.id %></td>
+<td><%= module.name %></td>
+<td><%= module.credits %></td>
+<td><%= module.year %></td>
+<td><%= module.degree_name %></td>
+
+<td>
+<a href="/modules/delete/<%= module.id %>">Delete</a>
+</td>
+
+</tr>
+
+<% }) %>
+
+</table>
+
+</body>
+</html>
