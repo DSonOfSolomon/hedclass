@@ -58,4 +58,13 @@ router.get(
   studentController.deleteStudent
 );
 
+/*
+Run classification for a student
+*/
+router.get(
+  "/students/classify/:id",
+  authMiddleware.isAuthenticated,
+  studentController.classifyStudent
+);
+
 module.exports = router;

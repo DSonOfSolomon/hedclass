@@ -4,154 +4,189 @@ const db = require("../models/db");
 Show all students
 */
 exports.listStudents = (req, res) => {
-
-    const sql = `
+  const sql = `
     SELECT students.*, degrees.name AS degree_name
     FROM students
     LEFT JOIN degrees ON students.degree_id = degrees.id
     `;
 
-    db.query(sql, (err, results) => {
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
 
-        if (err) {
-            console.error(err);
-            return res.send("Database error");
-        }
-
-        res.render("students", { students: results });
-
-    });
-
+    res.render("students", { students: results });
+  });
 };
-
 
 /*
 Show create student form
 */
 exports.showCreateStudent = (req, res) => {
+  const sql = "SELECT * FROM degrees";
 
-    const sql = "SELECT * FROM degrees";
+  db.query(sql, (err, degrees) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
 
-    db.query(sql, (err, degrees) => {
-
-        if (err) {
-            console.error(err);
-            return res.send("Database error");
-        }
-
-        res.render("create_student", { degrees });
-
-    });
-
+    res.render("create_student", { degrees });
+  });
 };
-
 
 /*
 Create student
 */
 exports.createStudent = (req, res) => {
+  const { name, student_number, degree_id } = req.body;
 
-    const { name, student_number, degree_id } = req.body;
-
-    const sql = `
+  const sql = `
     INSERT INTO students (name, student_number, degree_id)
     VALUES (?, ?, ?)
     `;
 
-    db.query(sql, [name, student_number, degree_id], (err) => {
+  db.query(sql, [name, student_number, degree_id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error creating student");
+    }
 
-        if (err) {
-            console.error(err);
-            return res.send("Error creating student");
-        }
-
-        res.redirect("/students");
-
-    });
-
+    res.redirect("/students");
+  });
 };
 
 /*
 Show edit student form
 */
 exports.showEditStudent = (req, res) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const studentQuery = "SELECT * FROM students WHERE id = ?";
+  const degreeQuery = "SELECT * FROM degrees";
 
-    const studentQuery = "SELECT * FROM students WHERE id = ?";
-    const degreeQuery = "SELECT * FROM degrees";
+  db.query(studentQuery, [id], (err, studentResult) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
 
-    db.query(studentQuery, [id], (err, studentResult) => {
+    db.query(degreeQuery, (err, degrees) => {
+      if (err) {
+        console.error(err);
+        return res.send("Database error");
+      }
 
-        if (err) {
-            console.error(err);
-            return res.send("Database error");
-        }
-
-        db.query(degreeQuery, (err, degrees) => {
-
-            if (err) {
-                console.error(err);
-                return res.send("Database error");
-            }
-
-            res.render("edit_student", {
-                student: studentResult[0],
-                degrees
-            });
-
-        });
-
+      res.render("edit_student", {
+        student: studentResult[0],
+        degrees,
+      });
     });
-
+  });
 };
 
 /*
 Update student
 */
 exports.updateStudent = (req, res) => {
+  const id = req.params.id;
+  const { name, student_number, degree_id } = req.body;
 
-    const id = req.params.id;
-    const { name, student_number, degree_id } = req.body;
-
-    const sql = `
+  const sql = `
     UPDATE students
     SET name = ?, student_number = ?, degree_id = ?
     WHERE id = ?
     `;
 
-    db.query(sql, [name, student_number, degree_id, id], (err) => {
+  db.query(sql, [name, student_number, degree_id, id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error updating student");
+    }
 
-        if (err) {
-            console.error(err);
-            return res.send("Error updating student");
-        }
-
-        res.redirect("/students");
-
-    });
-
+    res.redirect("/students");
+  });
 };
-
 
 /*
 Delete student
 */
 exports.deleteStudent = (req, res) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const sql = "DELETE FROM students WHERE id = ?";
 
-    const sql = "DELETE FROM students WHERE id = ?";
+  db.query(sql, [id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error deleting student");
+    }
 
-    db.query(sql, [id], (err) => {
+    res.redirect("/students");
+  });
+};
 
-        if (err) {
-            console.error(err);
-            return res.send("Error deleting student");
-        }
+/*
+Classify a student based on module marks
+*/
+exports.classifyStudent = (req, res) => {
+  const studentId = req.params.id;
 
-        res.redirect("/students");
+  const sql = `
+    SELECT marks.mark, modules.credits, modules.year
+    FROM marks
+    JOIN modules ON marks.module_id = modules.id
+    WHERE marks.student_id = ?
+    `;
 
+  db.query(sql, [studentId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
+
+    let year2Total = 0;
+    let year2Credits = 0;
+
+    let year3Total = 0;
+    let year3Credits = 0;
+
+    results.forEach((row) => {
+      const weighted = row.mark * row.credits;
+
+      if (row.year == 2) {
+        year2Total += weighted;
+        year2Credits += row.credits;
+      }
+
+      if (row.year == 3) {
+        year3Total += weighted;
+        year3Credits += row.credits;
+      }
     });
 
+    const year2Average = year2Total / year2Credits;
+    const year3Average = year3Total / year3Credits;
+
+    const finalAverage = year2Average * 0.3 + year3Average * 0.7;
+
+    let classification;
+
+    if (finalAverage >= 70) classification = "First";
+    else if (finalAverage >= 60) classification = "2:1";
+    else if (finalAverage >= 50) classification = "2:2";
+    else if (finalAverage >= 40) classification = "Third";
+    else classification = "Fail";
+
+    const updateSql = `
+        UPDATE students
+        SET classification = ?
+        WHERE id = ?
+        `;
+
+    db.query(updateSql, [classification, studentId], () => {
+      res.redirect("/students");
+    });
+  });
 };

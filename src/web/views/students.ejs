@@ -17,6 +17,7 @@
         <th>Name</th>
         <th>Student Number</th>
         <th>Degree</th>
+        <th>Classification</th>
         <th>Action</th>
       </tr>
 
@@ -28,7 +29,13 @@
         <td><%= student.student_number %></td>
         <td><%= student.degree_name %></td>
 
+        <td><%= student.classification || "Not calculated" %></td>
+
         <td>
+          <a href="/students/classify/<%= student.id %>">Run Classification</a>
+
+          |
+
           <a href="/students/edit/<%= student.id %>">Edit</a>
 
           |
