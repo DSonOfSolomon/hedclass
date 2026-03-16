@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Override Classification</title>
+</head>
+
+<body>
+
+<h1>Override Classification</h1>
+
+<p>Student: <%= student.name %></p>
+<p>System Classification: <%= student.classification %></p>
+
+<form action="/students/override/<%= student.id %>" method="POST">
+
+<label>Override Classification</label><br>
+
+<select name="override_classification">
+
+<option>First</option>
+<option>2:1</option>
+<option>2:2</option>
+<option>Third</option>
+<option>Fail</option>
+
+</select>
+
+<br><br>
+
+<label>Reason</label><br>
+
+<textarea name="override_reason" required></textarea>
+
+<br><br>
+
+<button type="submit">Save Override</button>
+
+</form>
+
+</body>
+</html>

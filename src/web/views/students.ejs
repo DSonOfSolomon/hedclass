@@ -18,6 +18,8 @@
         <th>Student Number</th>
         <th>Degree</th>
         <th>Classification</th>
+        <th>Override</th>
+        <th>Reason</th>
         <th>Action</th>
       </tr>
 
@@ -30,17 +32,20 @@
         <td><%= student.degree_name %></td>
 
         <td><%= student.classification || "Not calculated" %></td>
+        <td><%= student.override_classification || "-" %></td>
+        
+        <td><%= student.override_reason || "-" %></td>
 
         <td>
           <a href="/students/classify/<%= student.id %>">Run Classification</a>
 
-          |
+          <a href="/students/override/<%= student.id %>">Override</a>       |
 
-          <a href="/students/edit/<%= student.id %>">Edit</a>
-
-          |
+          <a href="/students/edit/<%= student.id %>">Edit</a>       |
 
           <a href="/students/delete/<%= student.id %>">Delete</a>
+
+          
         </td>
       </tr>
 

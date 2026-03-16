@@ -67,4 +67,21 @@ router.get(
   studentController.classifyStudent
 );
 
+/*
+Show override form
+*/
+router.get(
+  "/students/override/:id",
+  authMiddleware.isAuthenticated,
+  studentController.showOverrideForm
+  );
+  
+  /*
+  Save override
+  */
+  router.post(
+  "/students/override/:id",
+  authMiddleware.isAuthenticated,
+  studentController.saveOverride
+  );
 module.exports = router;

@@ -190,3 +190,42 @@ exports.classifyStudent = (req, res) => {
     });
   });
 };
+
+exports.showOverrideForm = (req, res) => {
+  const id = req.params.id;
+  const sql = "SELECT * FROM students WHERE id = ?";
+
+  db.query(sql, [id], (err, result) =>{
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
+
+    res.render("override_student", { student: result [0]});
+  });
+};
+
+exports.saveOverride = (req, res) => {
+
+  const id = req.params.id;
+
+  const { override_classification, override_reason } = req.body;
+
+  const sql = `
+  UPDATE students
+  SET override_classification = ?, override_reason = ?
+  WHERE id = ?
+  `;
+
+  db.query(sql, [override_classification, override_reason, id], (err) => {
+
+      if (err) {
+          console.error(err);
+          return res.send("Error saving override");
+      }
+
+      res.redirect("/students");
+
+  });
+
+};
