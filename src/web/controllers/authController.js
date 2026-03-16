@@ -60,14 +60,64 @@ exports.login = (req, res) => {
 Dashboard page
 This checks if a user session exists before allowing access
 */
+/*
+Dashboard page
+Checks if user is logged in and shows system summary
+*/
 exports.dashboard = (req, res) => {
-  // If user is not logged in, redirect to login page
+  // SECURITY: ensure user is logged in
   if (!req.session.user) {
     return res.redirect("/login");
   }
 
-  // Render dashboard and pass user data
-  res.render("dashboard", { user: req.session.user });
+  const user = req.session.user;
+
+  const studentCountQuery = "SELECT COUNT(*) AS total_students FROM students";
+  const degreeCountQuery = "SELECT COUNT(*) AS total_degrees FROM degrees";
+  const officerCountQuery =
+    "SELECT COUNT(*) AS total_officers FROM users WHERE role='officer'";
+
+  const classificationQuery = `
+  SELECT classification, COUNT(*) AS count
+  FROM students
+  GROUP BY classification
+  `;
+
+  db.query(studentCountQuery, (err, studentResult) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
+
+    db.query(degreeCountQuery, (err, degreeResult) => {
+      if (err) {
+        console.error(err);
+        return res.send("Database error");
+      }
+
+      db.query(officerCountQuery, (err, officerResult) => {
+        if (err) {
+          console.error(err);
+          return res.send("Database error");
+        }
+
+        db.query(classificationQuery, (err, classResults) => {
+          if (err) {
+            console.error(err);
+            return res.send("Database error");
+          }
+
+          res.render("dashboard", {
+            user: user,
+            students: studentResult[0].total_students,
+            degrees: degreeResult[0].total_degrees,
+            officers: officerResult[0].total_officers,
+            classifications: classResults,
+          });
+        });
+      });
+    });
+  });
 };
 
 /*

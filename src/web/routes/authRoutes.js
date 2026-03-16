@@ -19,4 +19,10 @@ router.get(
 // Logout route
 router.get("/logout", authController.logout);
 
+router.get(
+  "/dashboard",
+  authMiddleware.isAuthenticated,
+  authController.dashboard
+);
+
 module.exports = router;

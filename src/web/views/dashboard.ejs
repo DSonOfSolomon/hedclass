@@ -1,17 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+<title>HEdClass Dashboard</title>
 </head>
+
 <body>
 
 <h1>HEdClass Dashboard</h1>
 
 <p>Welcome <%= user.name %></p>
-
 <p>Your role: <%= user.role %></p>
 
 <a href="/logout">Logout</a>
+
+<hr>
+
+<h2>System Summary</h2>
+
+<p>Total Students: <%= students %></p>
+<p>Total Degrees: <%= degrees %></p>
+<p>Total Officers: <%= officers %></p>
+
+<hr>
+
+<h2>Classification Distribution</h2>
+
+<table border="1">
+
+<tr>
+<th>Classification</th>
+<th>Count</th>
+</tr>
+
+<% classifications.forEach(function(row){ %>
+
+<tr>
+<td><%= row.classification %></td>
+<td><%= row.count %></td>
+</tr>
+
+<% }) %>
+
+</table>
 
 </body>
 </html>

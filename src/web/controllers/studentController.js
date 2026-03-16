@@ -134,7 +134,7 @@ exports.classifyStudent = (req, res) => {
   const studentId = req.params.id;
 
   const sql = `
-    SELECT marks.mark, modules.credits, modules.year
+    SELECT marks.mark, mark.is_resit, modules.credits, modules.year
     FROM marks
     JOIN modules ON marks.module_id = modules.id
     WHERE marks.student_id = ?
@@ -153,7 +153,17 @@ exports.classifyStudent = (req, res) => {
     let year3Credits = 0;
 
     results.forEach((row) => {
-      const weighted = row.mark * row.credits;
+      /*
+      If the module is a resit, the mark used for classification
+      cannot exceed 40 (institution rule)
+      */
+      let markForCalculation = row.mark;
+
+      if (row.is_resit && row.mark > 40) {
+        markForCalculation = 40;
+      }
+
+      const weighted = markForCalculation * row.credits;
 
       if (row.year == 2) {
         year2Total += weighted;
@@ -195,18 +205,17 @@ exports.showOverrideForm = (req, res) => {
   const id = req.params.id;
   const sql = "SELECT * FROM students WHERE id = ?";
 
-  db.query(sql, [id], (err, result) =>{
+  db.query(sql, [id], (err, result) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
     }
 
-    res.render("override_student", { student: result [0]});
+    res.render("override_student", { student: result[0] });
   });
 };
 
 exports.saveOverride = (req, res) => {
-
   const id = req.params.id;
 
   const { override_classification, override_reason } = req.body;
@@ -218,14 +227,11 @@ exports.saveOverride = (req, res) => {
   `;
 
   db.query(sql, [override_classification, override_reason, id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error saving override");
+    }
 
-      if (err) {
-          console.error(err);
-          return res.send("Error saving override");
-      }
-
-      res.redirect("/students");
-
+    res.redirect("/students");
   });
-
 };

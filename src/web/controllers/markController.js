@@ -5,10 +5,13 @@ List all marks
 */
 exports.listMarks = (req, res) => {
   const sql = `
-    SELECT marks.*, students.name AS student_name, modules.name AS module_name
-    FROM marks
-    LEFT JOIN students ON marks.student_id = students.id
-    LEFT JOIN modules ON marks.module_id = modules.id
+    SELECT marks.*, 
+students.name AS student_name, 
+modules.name AS module_name,
+modules.credits
+FROM marks
+LEFT JOIN students ON marks.student_id = students.id
+LEFT JOIN modules ON marks.module_id = modules.id
     `;
 
   db.query(sql, (err, results) => {
@@ -120,20 +123,16 @@ exports.updateMark = (req, res) => {
 Delete mark
 */
 exports.deleteMark = (req, res) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const sql = "DELETE FROM marks WHERE id = ?";
 
-    const sql = "DELETE FROM marks WHERE id = ?";
+  db.query(sql, [id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error deleting mark");
+    }
 
-    db.query(sql, [id], (err) => {
-
-        if (err) {
-            console.error(err);
-            return res.send("Error deleting mark");
-        }
-
-        res.redirect("/marks");
-
-    });
-
+    res.redirect("/marks");
+  });
 };
