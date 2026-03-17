@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+</head>
+
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<p>Welcome <%= user.name %></p>
+<p>Role: <%= user.role %></p>
+
+<hr>
+
+<h2>Admin Actions</h2>
+
+<ul>
+<li><a href="/admin/officers">Manage Officers</a></li>
+<li><a href="/admin/degrees">Manage Degrees</a></li>
+<li><a href="/admin/assign">Assign Officers to Degrees</a></li>
+</ul>
+
+<br>
+
+<a href="/logout">Logout</a>
+
+</body>
+</html>

@@ -40,19 +40,19 @@ exports.login = (req, res) => {
       return res.send("Incorrect password");
     }
 
+    // Save user in session
+    req.session.user = user;
+
     /*
-        If password is correct, create a session.
-        We store basic user information inside the session object.
-        */
-
-    req.session.user = {
-      id: user.id,
-      name: user.name,
-      role: user.role,
-    };
-
-    // Redirect user to dashboard
-    res.redirect("/dashboard");
+    Redirect based on role
+    Admin → admin dashboard
+    Officer → classification dashboard
+    */
+    if (user.role === "admin") {
+      return res.redirect("/admin/dashboard");
+    } else {
+      return res.redirect("/dashboard");
+    }
   });
 };
 

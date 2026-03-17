@@ -63,4 +63,10 @@ router.post(
   adminController.assignOfficer
 );
 
+router.get(
+  "/admin/dashboard",
+  authMiddleware.isAdmin,
+  adminController.dashboard
+);
+
 module.exports = router;
