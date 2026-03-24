@@ -20,7 +20,11 @@
         <th>Classification</th>
         <th>Override</th>
         <th>Reason</th>
-        <th>Action</th>
+        <th>Actions</th>
+        <th>Y2 Avg</th>
+        <th>Y3 Avg</th>
+        <th>Final Avg</th>
+        <th>Rationale</th>
       </tr>
 
       <% students.forEach(function(student){ %>
@@ -33,19 +37,30 @@
 
         <td><%= student.classification || "Not calculated" %></td>
         <td><%= student.override_classification || "-" %></td>
-        
+
         <td><%= student.override_reason || "-" %></td>
 
         <td>
           <a href="/students/classify/<%= student.id %>">Run Classification</a>
 
-          <a href="/students/override/<%= student.id %>">Override</a>       |
+          <a href="/students/override/<%= student.id %>">Override</a> |
 
-          <a href="/students/edit/<%= student.id %>">Edit</a>       |
+          <a href="/students/edit/<%= student.id %>">Edit</a> |
 
           <a href="/students/delete/<%= student.id %>">Delete</a>
+        </td>
 
-          
+        <td>
+          <%= student.final_average ? student.final_average.toFixed(2) : "-" %>
+        </td>
+        <td>
+          <%= student.year2_average ? student.year2_average.toFixed(2) : "-" %>
+        </td>
+        <td>
+          <%= student.year3_average ? student.year3_average.toFixed(2) : "-" %>
+        </td>
+        <td>
+          <pre><%= student.rationale %></pre>
         </td>
       </tr>
 

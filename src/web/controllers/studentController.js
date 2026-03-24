@@ -43,11 +43,11 @@ exports.createStudent = (req, res) => {
   const { name, student_number, degree_id } = req.body;
 
   const sql = `
-    INSERT INTO students (name, student_number, degree_id)
-    VALUES (?, ?, ?)
+    INSERT INTO students (name, student_number, degree_id, classification)
+    VALUES (?, ?, ?, ?)
     `;
 
-  db.query(sql, [name, student_number, degree_id], (err) => {
+  db.query(sql, [name, student_number, degree_id, "Pending",], (err) => {
     if (err) {
       console.error(err);
       return res.send("Error creating student");
@@ -134,11 +134,11 @@ exports.classifyStudent = (req, res) => {
   const studentId = req.params.id;
 
   const sql = `
-    SELECT marks.mark, mark.is_resit, modules.credits, modules.year
+    SELECT marks.mark, marks.is_resit, modules.credits, modules.year
     FROM marks
     JOIN modules ON marks.module_id = modules.id
     WHERE marks.student_id = ?
-    `;
+  `;
 
   db.query(sql, [studentId], (err, results) => {
     if (err) {
@@ -153,10 +153,7 @@ exports.classifyStudent = (req, res) => {
     let year3Credits = 0;
 
     results.forEach((row) => {
-      /*
-      If the module is a resit, the mark used for classification
-      cannot exceed 40 (institution rule)
-      */
+      // Apply resit cap rule
       let markForCalculation = row.mark;
 
       if (row.is_resit && row.mark > 40) {
@@ -176,8 +173,9 @@ exports.classifyStudent = (req, res) => {
       }
     });
 
-    const year2Average = year2Total / year2Credits;
-    const year3Average = year3Total / year3Credits;
+    // Prevent division by zero
+    const year2Average = year2Credits ? year2Total / year2Credits : 0;
+    const year3Average = year3Credits ? year3Total / year3Credits : 0;
 
     const finalAverage = year2Average * 0.3 + year3Average * 0.7;
 
@@ -189,20 +187,43 @@ exports.classifyStudent = (req, res) => {
     else if (finalAverage >= 40) classification = "Third";
     else classification = "Fail";
 
-    const updateSql = `
-        UPDATE students
-        SET classification = ?
-        WHERE id = ?
-        `;
+    const rationale = `
+    Year 2 Average: ${year2Average.toFixed(2)}
+    Year 3 Average: ${year3Average.toFixed(2)}
 
-    db.query(updateSql, [classification, studentId], () => {
-      res.redirect("/students");
-    });
+    Final Calculation:
+    (${year2Average.toFixed(2)} × 0.30) + (${year3Average.toFixed(2)} × 0.70)
+
+    Final Average: ${finalAverage.toFixed(2)}
+    Classification: ${classification}
+    `;
+
+    
+
+    const updateSql = `
+      UPDATE students
+      SET classification = ?, final_average = ?, year2_average = ?, year3_average = ?, rationale = ?
+      WHERE id = ?
+    `;
+
+    db.query(
+      updateSql,
+      [classification, finalAverage, year2Average, year3Average, rationale, studentId],
+      (err) => {
+        if (err) {
+          console.error(err);
+          return res.send("Error updating classification");
+        }
+
+        res.redirect("/students");
+      }
+    );
   });
 };
 
 exports.showOverrideForm = (req, res) => {
   const id = req.params.id;
+
   const sql = "SELECT * FROM students WHERE id = ?";
 
   db.query(sql, [id], (err, result) => {
@@ -217,16 +238,15 @@ exports.showOverrideForm = (req, res) => {
 
 exports.saveOverride = (req, res) => {
   const id = req.params.id;
-
-  const { override_classification, override_reason } = req.body;
+  const { classification } = req.body;
 
   const sql = `
-  UPDATE students
-  SET override_classification = ?, override_reason = ?
-  WHERE id = ?
+    UPDATE students
+    SET classification = ?
+    WHERE id = ?
   `;
 
-  db.query(sql, [override_classification, override_reason, id], (err) => {
+  db.query(sql, [classification, id], (err) => {
     if (err) {
       console.error(err);
       return res.send("Error saving override");

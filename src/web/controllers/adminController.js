@@ -145,9 +145,7 @@ exports.assignOfficer = (req, res) => {
 };
 
 exports.dashboard = (req, res) => {
-
   res.render("admin_dashboard", {
-      user: req.session.user
+    user: req.session.user,
   });
-
 };

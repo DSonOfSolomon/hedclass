@@ -1,47 +1,68 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>HEdClass Dashboard</title>
-</head>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>HEdClass Dashboard</title>
+  </head>
 
-<body>
+  <body>
+    <h1>Academic Administrator Dashboard</h1>
 
-<h1>Academic Administrator Dashboard</h1>
+    <p>Welcome <%= user.name %></p>
+    <p>Your role: Classification Officer</p>
 
-<p>Welcome <%= user.name %></p>
-<p>Your role: Classification Officer</p>
+    <a href="/logout">Logout</a>
 
-<a href="/logout">Logout</a>
+    <hr />
 
-<hr>
+    <h2>System Summary</h2>
 
-<h2>System Summary</h2>
+    <p>Total Students: <%= students %></p>
+    <p>Total Degrees: <%= degrees %></p>
+    <p>Total Officers: <%= officers %></p>
 
-<p>Total Students: <%= students %></p>
-<p>Total Degrees: <%= degrees %></p>
-<p>Total Officers: <%= officers %></p>
+    <hr />
 
-<hr>
+    <h2>Classification Distribution</h2>
 
-<h2>Classification Distribution</h2>
+    <table border="1">
+      <tr>
+        <th>Classification</th>
+        <th>Count</th>
+      </tr>
 
-<table border="1">
+      <% classifications.forEach(function(row){ %>
 
-<tr>
-<th>Classification</th>
-<th>Count</th>
-</tr>
+      <tr>
+        <td><%= row.classification %></td>
+        <td><%= row.count %></td>
+      </tr>
 
-<% classifications.forEach(function(row){ %>
+      <% }) %>
+    </table>
 
-<tr>
-<td><%= row.classification %></td>
-<td><%= row.count %></td>
-</tr>
+    <h3>Classification Graph</h3>
 
-<% }) %>
+    <canvas id="classificationChart" width="400" height="200"></canvas>
+    <script>
 
-</table>
-
-</body>
+        const labels = <%- JSON.stringify(classifications.map(c => c.classification)) %>;
+        const data = <%- JSON.stringify(classifications.map(c => c.count)) %>;
+        
+        const ctx = document.getElementById('classificationChart');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Students',
+                    data: data
+                }]
+            }
+        });
+        
+        </script>
+    
+  </body>
 </html>
