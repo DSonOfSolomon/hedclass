@@ -8,5 +8,24 @@
 <h1>Welcome to HEdClass</h1>
 <p>Student Classification System</p>
 
+<h2>Login to HEdClass</h2>
+
+<!--
+This form sends the login data to the server using POST.
+POST is used because we are sending sensitive data (password).
+-->
+
+<form action="/login" method="POST">
+
+    <label>Email:</label><br>
+    <input type="email" name="email" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <button type="submit">Login</button>
+
+</form>
+
 </body>
 </html>

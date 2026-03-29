@@ -1,0 +1,56 @@
+/* Page */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+  }
+  
+  /* Navbar */
+  .navbar {
+    background: #001f3f; /* navy */
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logout {
+    color: white;
+    text-decoration: none;
+    padding: 12px 10px;
+    background: #ec920b;
+    border-radius: 25px;
+  }
+  
+  /* Main */
+  .container {
+    padding: 30px;
+  }
+  
+  /* Grid layout */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  /* Cards */
+  .card {
+    background: #f4f4f4;
+    padding: 30px;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: 0.2s;
+    
+    width: 150px;
+    height: 70px;
+  }
+  
+  .card:hover {
+    background: #ddd;
+  }

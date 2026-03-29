@@ -26,10 +26,9 @@
       <tr>
         <td><%= mark.student_name %></td>
         <td><%= mark.module_name %></td>
+        <td><%= mark.credits %></td>
         <td><%= mark.mark %></td>
         <td><%= mark.is_resit ? "Yes" : "No" %></td>
-
-        <td><%= mark.credits %></td>
 
         <td>
           <a href="/marks/edit/<%= mark.id %>">Edit</a>

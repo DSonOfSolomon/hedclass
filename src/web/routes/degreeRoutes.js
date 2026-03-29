@@ -44,4 +44,16 @@ router.get(
   degreeController.deleteDegree
 );
 
+router.get(
+  "/admin/degrees/edit/:id",
+  authMiddleware.isAdmin,
+  degreeController.showEditDegree
+);
+
+router.post(
+  "/admin/degrees/edit/:id",
+  authMiddleware.isAdmin,
+  degreeController.updateDegree
+);
+
 module.exports = router;

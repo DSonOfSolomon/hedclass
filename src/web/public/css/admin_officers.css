@@ -1,0 +1,123 @@
+
+.officer-list {
+  margin-top: 20px;
+}
+
+
+.officer-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 2fr auto;
+  align-items: center;
+
+  background-color: #eeeeee;
+  padding: 5px 10px;
+  border-radius: 60px;
+  margin-bottom: 15px;
+  transition: 0.2s ease;
+
+  gap: 10px;
+}
+
+
+.officer-row:hover {
+  background-color: #e4e4e4;
+}
+
+
+.officer-row div {
+  font-size: 14px;
+}
+
+
+.actions a {
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+
+.edit-btn {
+  color: #3498db;
+}
+
+
+.delete-btn {
+  color: #e74c3c;
+}
+
+h1 {
+  font-size: 38px;
+  font-weight: 600;
+  margin-bottom: 20px;
+
+}
+
+.btn {
+  display: inline-block;
+  background: #001f3f;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 28px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.btn:hover {
+  background: #112d4e;
+}
+
+
+
+
+/* Create Officer Style*/
+
+.container {
+  max-width: 500px;
+  margin: 60px auto; 
+}
+
+.officer-page-header h1{
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+
+
+form {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+button {
+  background: #0a192f;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #112d4e;
+}
+
+
+/*Edit Officer Style  */
+
+.edit-officer-header{
+    font-size: 30px;
+    margin-bottom: 20px;
+}

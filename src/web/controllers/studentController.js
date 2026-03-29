@@ -47,7 +47,7 @@ exports.createStudent = (req, res) => {
     VALUES (?, ?, ?, ?)
     `;
 
-  db.query(sql, [name, student_number, degree_id, "Pending",], (err) => {
+  db.query(sql, [name, student_number, degree_id, "Pending"], (err) => {
     if (err) {
       console.error(err);
       return res.send("Error creating student");
@@ -134,16 +134,23 @@ exports.classifyStudent = (req, res) => {
   const studentId = req.params.id;
 
   const sql = `
-    SELECT marks.mark, marks.is_resit, modules.credits, modules.year
-    FROM marks
-    JOIN modules ON marks.module_id = modules.id
-    WHERE marks.student_id = ?
-  `;
+  SELECT marks.mark, marks.is_resit, modules.credits, modules.year,
+         degrees.year2_weight, degrees.year3_weight
+  FROM marks
+  JOIN modules ON marks.module_id = modules.id
+  JOIN students ON marks.student_id = students.id
+  JOIN degrees ON students.degree_id = degrees.id
+  WHERE marks.student_id = ?
+`;
 
   db.query(sql, [studentId], (err, results) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
+    }
+
+    if (!results || results.length === 0) {
+      return res.send("No marks found for student");
     }
 
     let year2Total = 0;
@@ -177,7 +184,10 @@ exports.classifyStudent = (req, res) => {
     const year2Average = year2Credits ? year2Total / year2Credits : 0;
     const year3Average = year3Credits ? year3Total / year3Credits : 0;
 
-    const finalAverage = year2Average * 0.3 + year3Average * 0.7;
+    const y2w = results[0].year2_weight / 100;
+    const y3w = results[0].year3_weight / 100;
+
+    const finalAverage = year2Average * y2w + year3Average * y3w;
 
     let classification;
 
@@ -192,13 +202,11 @@ exports.classifyStudent = (req, res) => {
     Year 3 Average: ${year3Average.toFixed(2)}
 
     Final Calculation:
-    (${year2Average.toFixed(2)} × 0.30) + (${year3Average.toFixed(2)} × 0.70)
+    (${year2Average.toFixed(2)} × ${y2w}) + (${year3Average.toFixed(2)} × ${y3w})
 
     Final Average: ${finalAverage.toFixed(2)}
     Classification: ${classification}
     `;
-
-    
 
     const updateSql = `
       UPDATE students
@@ -208,7 +216,14 @@ exports.classifyStudent = (req, res) => {
 
     db.query(
       updateSql,
-      [classification, finalAverage, year2Average, year3Average, rationale, studentId],
+      [
+        classification,
+        finalAverage,
+        year2Average,
+        year3Average,
+        rationale,
+        studentId,
+      ],
       (err) => {
         if (err) {
           console.error(err);

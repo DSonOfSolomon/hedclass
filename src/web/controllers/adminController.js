@@ -149,3 +149,42 @@ exports.dashboard = (req, res) => {
     user: req.session.user,
   });
 };
+
+exports.showEditOfficer = (req, res) => {
+  const id = req.params.id;
+
+  db.query(
+    "SELECT * FROM users WHERE id = ? AND role = 'officer'",
+    [id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.send("Error");
+      }
+
+      if (!result || result.length === 0) {
+        return res.send("Officer not found");
+      }
+
+      res.render("edit_officer", { officer: result[0] });
+    }
+  );
+};
+
+exports.updateOfficer = (req, res) => {
+  const id = req.params.id;
+  const { name, email } = req.body;
+
+  db.query(
+    "UPDATE users SET name = ?, email = ? WHERE id = ? AND role = 'officer'",
+    [name, email, id],
+    (err) => {
+      if (err) {
+        console.error(err);
+        return res.send("Error");
+      }
+
+      res.redirect("/admin/officers");
+    }
+  );
+};

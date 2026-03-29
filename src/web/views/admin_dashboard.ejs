@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Admin Dashboard</title>
-</head>
+  <head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/admin_dashboard.css" />
+  </head>
 
-<body>
+  <body>
+    <div class="navbar">
+      <h2>HEdClass</h2>
+      <a href="/logout" class="logout">Logout</a>
+    </div>
 
-<h1> Institutional Administrator Dashboard</h1>
+    <div class="container">
+      <h1>Admin Dashboard</h1>
 
-<p>Welcome Institutional <%= user.name %></p>
-<p>Role: Institutional Administrator </p>
-
-<hr>
-
-<h2>Admin Actions</h2>
-
-<ul>
-<li><a href="/admin/officers">Manage Officers</a></li>
-<li><a href="/admin/degrees">Manage Degrees</a></li>
-<li><a href="/admin/assign">Assign Officers to Degrees</a></li>
-</ul>
-
-<br>
-
-<a href="/logout">Logout</a>
-
-</body>
+      <div class="grid">
+        <a href="/admin/officers" class="card">Manage Officers</a>
+        <a href="/admin/degrees" class="card">Manage Degrees</a>
+        <a href="/admin/assign" class="card">Assign Officers to Degrees</a>
+      </div>
+    </div>
+  </body>
 </html>

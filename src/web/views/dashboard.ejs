@@ -3,9 +3,70 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>HEdClass Dashboard</title>
+
+    <style>
+      /* Drawer */
+      .drawer {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 250px;
+        height: 100%;
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        transition: 0.3s;
+        z-index: 1000;
+      }
+
+      .drawer a {
+        display: block;
+        color: white;
+        margin: 10px 0;
+        text-decoration: none;
+      }
+
+      .drawer a:hover {
+        background: #34495e;
+        padding-left: 5px;
+      }
+
+      .drawer.open {
+        left: 0;
+      }
+
+      /* Menu button */
+      .menu-btn {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1100;
+      }
+
+      body {
+        padding-left: 20px;
+      }
+    </style>
   </head>
 
   <body>
+
+    <!-- MENU BUTTON -->
+    <button class="menu-btn" onclick="toggleDrawer()">☰</button>
+
+    <!-- DRAWER -->
+    <div id="drawer" class="drawer">
+      <h3>Officer Actions</h3>
+
+      <a href="/students">Students</a>
+      <a href="/modules">Modules</a>
+      <a href="/marks">Marks</a>
+
+      <br>
+      <button onclick="toggleDrawer()">Close</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
     <h1>Academic Administrator Dashboard</h1>
 
     <p>Welcome <%= user.name %></p>
@@ -32,37 +93,38 @@
       </tr>
 
       <% classifications.forEach(function(row){ %>
-
       <tr>
         <td><%= row.classification %></td>
         <td><%= row.count %></td>
       </tr>
-
       <% }) %>
     </table>
 
     <h3>Classification Graph</h3>
 
     <canvas id="classificationChart" width="400" height="200"></canvas>
-    <script>
 
-        const labels = <%- JSON.stringify(classifications.map(c => c.classification)) %>;
-        const data = <%- JSON.stringify(classifications.map(c => c.count)) %>;
-        
-        const ctx = document.getElementById('classificationChart');
-        
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Number of Students',
-                    data: data
-                }]
-            }
-        });
-        
-        </script>
-    
+    <script>
+      function toggleDrawer() {
+        document.getElementById("drawer").classList.toggle("open");
+      }
+
+      const labels = <%- JSON.stringify(classifications.map(c => c.classification)) %>;
+      const data = <%- JSON.stringify(classifications.map(c => c.count)) %>;
+
+      const ctx = document.getElementById('classificationChart');
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Number of Students',
+            data: data
+          }]
+        }
+      });
+    </script>
+
   </body>
 </html>

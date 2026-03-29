@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/admin_officers.css" />
+  </head>
+  <body>
+    <div class="edit-officer-container">
+      <div class="edit-officer-header">
+        <h1>Edit Officer</h1>
+      </div>
+
+      <div class="edit-officer-form">
+        <form method="POST">
+          Name:
+          <input type="text" name="name" value="<%= officer.name %>" /><br />
+          Email:
+          <input type="email" name="email" value="<%= officer.email %>" /><br />
+
+          <div class="edit-officer-update">
+            <button type="submit">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

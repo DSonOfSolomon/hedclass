@@ -69,4 +69,16 @@ router.get(
   adminController.dashboard
 );
 
+router.get(
+  "/admin/officers/edit/:id",
+  authMiddleware.isAdmin,
+  adminController.showEditOfficer
+);
+
+router.post(
+  "/admin/officers/edit/:id",
+  authMiddleware.isAdmin,
+  adminController.updateOfficer
+);
+
 module.exports = router;
