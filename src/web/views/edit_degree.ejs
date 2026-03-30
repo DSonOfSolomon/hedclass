@@ -1,8 +1,26 @@
-<h1>Edit Degree</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/degreeProgrammes.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Edit Degree</h1>
 
-<form method="POST">
-  Name: <input type="text" name="name" value="<%= degree.name %>" /><br>
-  Description: <input type="text" name="description" value="<%= degree.description %>" /><br>
+      <div class="edit-form">
+        <form method="POST">
+          Name: <input type="text" name="name" value="<%= degree.name %>" />
+          Description:
+          <input
+            type="text"
+            name="description"
+            value="<%= degree.description %>"
+          />
 
-  <button type="submit">Update</button>
-</form>
+          <button type="submit">Update</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

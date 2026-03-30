@@ -1,52 +1,41 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Assign Officer to Degree</title>
-</head>
+  <head>
+    <title>Assign Officer to Degree</title>
+    <link rel="stylesheet" href="/css/degreeProgrammes.css" />
+  </head>
 
-<body>
+  <body>
+    <div class="container">
+      <h1>Assign Officer to Degree</h1>
 
-<h1>Assign Officer to Degree</h1>
+      <div class="assign-form">
+        <form action="/admin/assign" method="POST">
+          <label>Select Officer</label>
 
-<form action="/admin/assign" method="POST">
+          <select name="officer_id">
+            <% officers.forEach(function(officer){ %>
 
-<label>Select Officer</label>
-<br>
+            <option value="<%= officer.id %>"><%= officer.name %></option>
 
-<select name="officer_id">
+            <% }) %>
+          </select>
 
-<% officers.forEach(function(officer){ %>
+          <label>Select Degree</label>
 
-<option value="<%= officer.id %>">
-<%= officer.name %>
-</option>
+          <select name="degree_id">
+            <% degrees.forEach(function(degree){ %>
 
-<% }) %>
+            <option value="<%= degree.id %>"><%= degree.name %></option>
 
-</select>
+            <% }) %>
+          </select>
 
-<br><br>
-
-<label>Select Degree</label>
-<br>
-
-<select name="degree_id">
-
-<% degrees.forEach(function(degree){ %>
-
-<option value="<%= degree.id %>">
-<%= degree.name %>
-</option>
-
-<% }) %>
-
-</select>
-
-<br><br>
-
-<button type="submit">Assign</button>
-
-</form>
-
-</body>
+          <div class="assign-btn">
+            <button type="submit">Assign</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>

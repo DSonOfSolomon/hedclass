@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>HEdClass Login</title>
-</head>
-<body>
+  <head>
+    <title>HEdClass</title>
+    <link rel="stylesheet" href="/css/loginPage.css" />
+  </head>
+  <body>
+    <div class="login-page-container">
+      <div class="login-page-heading">
+        <h1>Welcome to HEdClass</h1>
+        <p>Student Classification System</p>
+      </div>
 
-<h2>Login to HEdClass</h2>
+      <div class="login-info">
+        <h2>Academic Admin / Institutional Admin</h2>
+      </div>
 
-<!--
-This form sends the login data to the server using POST.
-POST is used because we are sending sensitive data (password).
--->
+      <div class="login-page-form">
+        <h2>Login to HEdClass</h2>
+        <form action="/login" method="POST">
+          <label>Email:</label><br />
+          <input type="email" name="email" required /><br /><br />
 
-<form action="/login" method="POST">
+          <label>Password:</label><br />
+          <input type="password" name="password" required /><br /><br />
 
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br><br>
-
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
-
-    <button type="submit">Login</button>
-
-</form>
-
-</body>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>

@@ -7,31 +7,33 @@
   <body>
     <div class="container">
       <h1>Classification Officers</h1>
-    </div>
 
-    <a href="/admin/officers/create" class="btn">Create New Officer</a>
+      <a href="/admin/officers/create" class="btn">Create New Officer</a>
 
-    <br /><br />
+      <br /><br />
 
-    <div class="officer-list">
-      <% officers.forEach(function(officer){ %>
+      <div class="officer-list">
+        <% officers.forEach(function(officer){ %>
 
-      <div class="officer-row">
-        <p><strong>ID:</strong> <%= officer.id %></p>
-        <p><strong>Name:</strong> <%= officer.name %></p>
-        <p><strong>Email:</strong> <%= officer.email %></p>
+        <div class="officer-row">
+          <p><strong>ID:</strong> <%= officer.id %></p>
+          <p><strong>Name:</strong> <%= officer.name %></p>
+          <p><strong>Email:</strong> <%= officer.email %></p>
 
-        <div class="actions">
-          <a href="/admin/officers/edit/<%= officer.id %>" class="edit-btn"
-            >Edit</a
-          >
-          <a href="/admin/officers/delete/<%= officer.id %>" class="delete-btn"
-            >Delete</a
-          >
+          <div class="actions">
+            <a href="/admin/officers/edit/<%= officer.id %>" class="edit-btn"
+              >Edit</a
+            >
+            <a
+              href="/admin/officers/delete/<%= officer.id %>"
+              class="delete-btn"
+              >Delete</a
+            >
+          </div>
         </div>
-      </div>
 
-      <% }) %>
+        <% }) %>
+      </div>
     </div>
   </body>
 </html>
