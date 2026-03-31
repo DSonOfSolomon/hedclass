@@ -1,113 +1,98 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>HEdClass</title>
+    <link rel="stylesheet" href="/css/classificationOfficerPage.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title>HEdClass Dashboard</title>
-
-    <style>
-      /* Drawer */
-      .drawer {
-        position: fixed;
-        top: 0;
-        left: -300px;
-        width: 250px;
-        height: 100%;
-        background: #2c3e50;
-        color: white;
-        padding: 20px;
-        transition: 0.3s;
-        z-index: 1000;
-      }
-
-      .drawer a {
-        display: block;
-        color: white;
-        margin: 10px 0;
-        text-decoration: none;
-      }
-
-      .drawer a:hover {
-        background: #34495e;
-        padding-left: 5px;
-      }
-
-      .drawer.open {
-        left: 0;
-      }
-
-      /* Menu button */
-      .menu-btn {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        z-index: 1100;
-      }
-
-      body {
-        padding-left: 20px;
-      }
-    </style>
   </head>
 
   <body>
+    <div class="navbar">
+      <button class="menu-btn" onclick="toggleDrawer()">☰</button>
 
-    <!-- MENU BUTTON -->
-    <button class="menu-btn" onclick="toggleDrawer()">☰</button>
+      <h2>HEdClass</h2>
 
-    <!-- DRAWER -->
+      <div class="profile" onclick="toggleProfileModal()">
+        <div class="avatar">👤</div>
+      </div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="closeDrawer()"></div>
+
     <div id="drawer" class="drawer">
       <h3>Officer Actions</h3>
-
       <a href="/students">Students</a>
       <a href="/modules">Modules</a>
       <a href="/marks">Marks</a>
-
-      <br>
-      <button onclick="toggleDrawer()">Close</button>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <h1>Academic Administrator Dashboard</h1>
+    <div id="profileModal" class="profile-modal">
+      <div class="modal-content">
+        <div class="avatar large">👤</div>
+        <h3><%= user.name %></h3>
+        <p>Classification Officer</p>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </div>
 
-    <p>Welcome <%= user.name %></p>
-    <p>Your role: Classification Officer</p>
+    <div class="container">
+      <h1>Dashboard</h1>
 
-    <a href="/logout">Logout</a>
+      <div class="summary">
+        <div class="card">Students<br /><strong><%= students %></strong></div>
+        <div class="card">Degrees<br /><strong><%= degrees %></strong></div>
+        <div class="card">Officers<br /><strong><%= officers %></strong></div>
+      </div>
 
-    <hr />
+      <h2>Classification Distribution</h2>
 
-    <h2>System Summary</h2>
+      <div class="table-card">
+        <table>
+          <tr>
+            <th>Classification</th>
+            <th>Count</th>
+          </tr>
 
-    <p>Total Students: <%= students %></p>
-    <p>Total Degrees: <%= degrees %></p>
-    <p>Total Officers: <%= officers %></p>
+          <% classifications.forEach(function(row){ %>
+          <tr>
+            <td><%= row.classification %></td>
+            <td><%= row.count %></td>
+          </tr>
+          <% }) %>
+        </table>
+      </div>
 
-    <hr />
+      <h3>Classification Graph</h3>
 
-    <h2>Classification Distribution</h2>
-
-    <table border="1">
-      <tr>
-        <th>Classification</th>
-        <th>Count</th>
-      </tr>
-
-      <% classifications.forEach(function(row){ %>
-      <tr>
-        <td><%= row.classification %></td>
-        <td><%= row.count %></td>
-      </tr>
-      <% }) %>
-    </table>
-
-    <h3>Classification Graph</h3>
-
-    <canvas id="classificationChart" width="400" height="200"></canvas>
+      <div class="chart-box">
+        <canvas id="classificationChart"></canvas>
+      </div>
+    </div>
 
     <script>
+
       function toggleDrawer() {
         document.getElementById("drawer").classList.toggle("open");
+        document.getElementById("overlay").classList.toggle("show");
       }
+
+      function closeDrawer() {
+        document.getElementById("drawer").classList.remove("open");
+        document.getElementById("overlay").classList.remove("show");
+      }
+
+
+      function toggleProfileModal() {
+        document.getElementById("profileModal").classList.toggle("show");
+      }
+
+
+      document.getElementById("profileModal").addEventListener("click", function(e) {
+        if (e.target === this) {
+          this.classList.remove("show");
+        }
+      });
+
 
       const labels = <%- JSON.stringify(classifications.map(c => c.classification)) %>;
       const data = <%- JSON.stringify(classifications.map(c => c.count)) %>;
@@ -119,12 +104,28 @@
         data: {
           labels: labels,
           datasets: [{
-            label: 'Number of Students',
-            data: data
+            label: 'Students',
+            data: data,
+            backgroundColor: [
+              '#4CAF50','#2196F3','#FFC107','#FF5722','#9E9E9E'
+            ]
           }]
+        },
+        options: {
+          responsive: false
         }
       });
     </script>
 
+    <script>
+      document.addEventListener("click", function (e) {
+        const modal = document.getElementById("profileModal");
+        const profile = document.querySelector(".profile");
+
+        if (!profile.contains(e.target) && !modal.contains(e.target)) {
+          modal.classList.remove("show");
+        }
+      });
+    </script>
   </body>
 </html>

@@ -1,41 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Override Classification</title>
-</head>
+  <head>
+    <title>Override Classification</title>
+    <link rel="stylesheet" href="/css/students.css">
+  </head>
 
-<body>
+  <body>
+    <div class="override-container">
+      <h1>Override Classification</h1>
 
-<h1>Override Classification</h1>
+      <div class="student-info">
+        <p>Student: <%= student.name %></p>
+        <p>System Classification: <%= student.classification %></p>
+      </div>
 
-<p>Student: <%= student.name %></p>
-<p>System Classification: <%= student.classification %></p>
+      <form action="/students/override/<%= student.id %>" method="POST">
+        <label>Override Classification</label>
 
-<form action="/students/override/<%= student.id %>" method="POST">
+        <select name="override_classification">
+          <option>First</option>
+          <option>2:1</option>
+          <option>2:2</option>
+          <option>Third</option>
+          <option>Fail</option>
+        </select>
 
-<label>Override Classification</label><br>
+        <label>Reason</label>
 
-<select name="override_classification">
+        <textarea name="override_reason" required></textarea>
 
-<option>First</option>
-<option>2:1</option>
-<option>2:2</option>
-<option>Third</option>
-<option>Fail</option>
-
-</select>
-
-<br><br>
-
-<label>Reason</label><br>
-
-<textarea name="override_reason" required></textarea>
-
-<br><br>
-
-<button type="submit">Save Override</button>
-
-</form>
-
-</body>
+        <button type="submit">Save Override</button>
+      </form>
+    </div>
+  </body>
 </html>

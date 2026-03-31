@@ -2,69 +2,80 @@
 <html>
   <head>
     <title>Students</title>
+    <link rel="stylesheet" href="/css/students.css" />
   </head>
 
   <body>
-    <h1>Student Cohort</h1>
+    <div class="container">
+      <h1>Student Cohort</h1>
 
-    <a href="/students/create">Add Student</a>
+      <a href="/students/create" class="btn">+ Add Student</a>
 
-    <br /><br />
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Student Number</th>
+            <th>Degree</th>
+            <th>Classification</th>
+            <th>Override</th>
+            <th>Reason</th>
+            <th>Y2 Avg</th>
+            <th>Y3 Avg</th>
+            <th>Final Avg</th>
+            <th>Rationale</th>
+            <th>Actions</th>
+          </tr>
 
-    <table border="1">
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Student Number</th>
-        <th>Degree</th>
-        <th>Classification</th>
-        <th>Override</th>
-        <th>Reason</th>
-        <th>Actions</th>
-        <th>Y2 Avg</th>
-        <th>Y3 Avg</th>
-        <th>Final Avg</th>
-        <th>Rationale</th>
-      </tr>
+          <% students.forEach(function(student){ %>
+          <tr>
+            <td><%= student.id %></td>
+            <td><%= student.name %></td>
+            <td><%= student.student_number %></td>
+            <td><%= student.degree_name %></td>
 
-      <% students.forEach(function(student){ %>
+            <td><%= student.classification || "Not calculated" %></td>
+            <td><%= student.override_classification || "-" %></td>
+            <td><%= student.override_reason || "-" %></td>
 
-      <tr>
-        <td><%= student.id %></td>
-        <td><%= student.name %></td>
-        <td><%= student.student_number %></td>
-        <td><%= student.degree_name %></td>
+            <td>
+              <%= student.final_average ? student.final_average.toFixed(2) : "-"
+              %>
+            </td>
+            <td>
+              <%= student.year2_average ? student.year2_average.toFixed(2) : "-"
+              %>
+            </td>
+            <td>
+              <%= student.year3_average ? student.year3_average.toFixed(2) : "-"
+              %>
+            </td>
 
-        <td><%= student.classification || "Not calculated" %></td>
-        <td><%= student.override_classification || "-" %></td>
+            <td class="rationale">
+              <pre><%= student.rationale %></pre>
+            </td>
 
-        <td><%= student.override_reason || "-" %></td>
-
-        <td>
-          <a href="/students/classify/<%= student.id %>">Run Classification</a>
-
-          <a href="/students/override/<%= student.id %>">Override</a> |
-
-          <a href="/students/edit/<%= student.id %>">Edit</a> |
-
-          <a href="/students/delete/<%= student.id %>">Delete</a>
-        </td>
-
-        <td>
-          <%= student.final_average ? student.final_average.toFixed(2) : "-" %>
-        </td>
-        <td>
-          <%= student.year2_average ? student.year2_average.toFixed(2) : "-" %>
-        </td>
-        <td>
-          <%= student.year3_average ? student.year3_average.toFixed(2) : "-" %>
-        </td>
-        <td>
-          <pre><%= student.rationale %></pre>
-        </td>
-      </tr>
-
-      <% }) %>
-    </table>
+            <td class="actions">
+              <a href="/students/classify/<%= student.id %>" class="btn run "
+                >Run</a
+              >
+              <a href="/students/override/<%= student.id %>" class="btn small"
+                >Override</a
+              >
+              <a href="/students/edit/<%= student.id %>" class="btn small"
+                >Edit</a
+              >
+              <a
+                href="/students/delete/<%= student.id %>"
+                class="btn small danger"
+                >Delete</a
+              >
+            </td>
+          </tr>
+          <% }) %>
+        </table>
+      </div>
+    </div>
   </body>
 </html>

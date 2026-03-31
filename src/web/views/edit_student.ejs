@@ -2,21 +2,24 @@
 <html>
 <head>
 <title>Edit Student</title>
+<link rel="stylesheet" href="/css/students.css">
 </head>
 
 <body>
+
+    <div class="edit-student-container">
 
 <h1>Edit Student</h1>
 
 <form action="/students/update/<%= student.id %>" method="POST">
 
-<label>Name</label><br>
-<input type="text" name="name" value="<%= student.name %>" required><br><br>
+<label>Name</label>
+<input type="text" name="name" value="<%= student.name %>" required>
 
-<label>Student Number</label><br>
-<input type="text" name="student_number" value="<%= student.student_number %>" required><br><br>
+<label>Student Number</label>
+<input type="text" name="student_number" value="<%= student.student_number %>" required>
 
-<label>Degree</label><br>
+<label>Degree</label>
 
 <select name="degree_id">
 
@@ -30,11 +33,15 @@
 
 </select>
 
-<br><br>
+
 
 <button type="submit">Update Student</button>
 
 </form>
+
+
+    </div>
+
 
 </body>
 </html>
