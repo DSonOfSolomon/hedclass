@@ -1,43 +1,33 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Create Module</title>
-</head>
+  <head>
+    <title>Create Module</title>
+    <link rel="stylesheet" href="/css/modules.css">
+  </head>
 
-<body>
+  <body>
+    <div class="container">
+      <h1>Create Module</h1>
 
-<h1>Create Module</h1>
+      <form action="/modules/create" method="POST">
+        <label>Name</label>
+        <input type="text" name="name" required />
 
-<form action="/modules/create" method="POST">
+        <label>Credits</label>
+        <input type="number" name="credits" required />
 
-<label>Name</label><br>
-<input type="text" name="name" required><br><br>
+        <label>Year</label>
+        <input type="number" name="year" required />
 
-<label>Credits</label><br>
-<input type="number" name="credits" required><br><br>
+        <label>Degree</label>
+        <select name="degree_id">
+          <% degrees.forEach(function(degree){ %>
+          <option value="<%= degree.id %>"><%= degree.name %></option>
+          <% }) %>
+        </select>
 
-<label>Year</label><br>
-<input type="number" name="year" required><br><br>
-
-<label>Degree</label><br>
-
-<select name="degree_id">
-
-<% degrees.forEach(function(degree){ %>
-
-<option value="<%= degree.id %>">
-<%= degree.name %>
-</option>
-
-<% }) %>
-
-</select>
-
-<br><br>
-
-<button type="submit">Create Module</button>
-
-</form>
-
-</body>
+        <button type="submit">Create Module</button>
+      </form>
+    </div>
+  </body>
 </html>

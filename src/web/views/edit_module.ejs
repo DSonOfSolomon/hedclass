@@ -2,42 +2,40 @@
 <html>
 <head>
 <title>Edit Module</title>
+<link rel="stylesheet" href="/css/modules.css">
 </head>
 
 <body>
 
-<h1>Edit Module</h1>
-
-<form action="/modules/update/<%= module.id %>" method="POST">
-
-<label>Name</label><br>
-<input type="text" name="name" value="<%= module.name %>" required><br><br>
-
-<label>Credits</label><br>
-<input type="number" name="credits" value="<%= module.credits %>" required><br><br>
-
-<label>Year</label><br>
-<input type="number" name="year" value="<%= module.year %>" required><br><br>
-
-<label>Degree</label><br>
-
-<select name="degree_id">
-
-<% degrees.forEach(function(degree){ %>
-
-<option value="<%= degree.id %>" <%= module.degree_id == degree.id ? "selected" : "" %>>
-<%= degree.name %>
-</option>
-
-<% }) %>
-
-</select>
-
-<br><br>
-
-<button type="submit">Update Module</button>
-
-</form>
-
-</body>
+    <div class="container">
+  
+      <h1>Edit Module</h1>
+  
+      <form action="/modules/update/<%= module.id %>" method="POST">
+  
+        <label>Name</label>
+        <input type="text" name="name" value="<%= module.name %>" required>
+  
+        <label>Credits</label>
+        <input type="number" name="credits" value="<%= module.credits %>" required>
+  
+        <label>Year</label>
+        <input type="number" name="year" value="<%= module.year %>" required>
+  
+        <label>Degree</label>
+        <select name="degree_id">
+          <% degrees.forEach(function(degree){ %>
+            <option value="<%= degree.id %>" <%= module.degree_id == degree.id ? "selected" : "" %>>
+              <%= degree.name %>
+            </option>
+          <% }) %>
+        </select>
+  
+        <button type="submit">Update Module</button>
+  
+      </form>
+  
+    </div>
+  
+  </body>
 </html>

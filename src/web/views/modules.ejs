@@ -2,44 +2,50 @@
 <html>
   <head>
     <title>Modules</title>
+    <link rel="stylesheet" href="/css/modules.css" />
   </head>
 
   <body>
-    <h1>Modules</h1>
+    <div class="container">
+      <h1>Modules</h1>
 
-    <a href="/modules/create">Add Module</a>
+      <a href="/modules/create" class="btn">+ Add Module</a>
 
-    <br /><br />
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Credits</th>
+            <th>Year</th>
+            <th>Degree</th>
+            <th class="actions">Action</th>
+          </tr>
 
-    <table border="1">
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Credits</th>
-        <th>Year</th>
-        <th>Degree</th>
-        <th>Action</th>
-      </tr>
+          <% modules.forEach(function(module){ %>
 
-      <% modules.forEach(function(module){ %>
+          <tr>
+            <td><%= module.id %></td>
+            <td><%= module.name %></td>
+            <td><%= module.credits %></td>
+            <td><%= module.year %></td>
+            <td><%= module.degree_name %></td>
 
-      <tr>
-        <td><%= module.id %></td>
-        <td><%= module.name %></td>
-        <td><%= module.credits %></td>
-        <td><%= module.year %></td>
-        <td><%= module.degree_name %></td>
+            <td class="actions">
+              <a href="/modules/edit/<%= module.id %>" class="btn small"
+                >Edit</a
+              >
+              <a
+                href="/modules/delete/<%= module.id %>"
+                class="btn small danger"
+                >Delete</a
+              >
+            </td>
+          </tr>
 
-        <td>
-          <a href="/modules/edit/<%= module.id %>">Edit</a>
-
-          |
-
-          <a href="/modules/delete/<%= module.id %>">Delete</a>
-        </td>
-      </tr>
-
-      <% }) %>
-    </table>
+          <% }) %>
+        </table>
+      </div>
+    </div>
   </body>
 </html>
