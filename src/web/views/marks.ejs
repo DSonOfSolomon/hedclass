@@ -2,42 +2,46 @@
 <html>
   <head>
     <title>Marks</title>
+    <link rel="stylesheet" href="/css/marks.css">
   </head>
 
   <body>
-    <h1>Module Marks</h1>
+    <div class="mark-container">
+      <h1>Module Marks</h1>
 
-    <a href="/marks/create">Add Mark</a>
+      <a href="/marks/create" class="btn">+ Add Mark</a>
 
-    
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <th>Student</th>
+            <th>Module</th>
+            <th>Credits</th>
+            <th>Mark</th>
+            <th>Resit</th>
+            <th class="actions">Action</th>
+          </tr>
 
-    <table >
-      <tr>
-        <th>Student</th>
-        <th>Module</th>
-        <th>Credits</th>
-        <th>Mark</th>
-        <th>Resit</th>
-        <th>Action</th>
-      </tr>
+          <% marks.forEach(function(mark){ %>
 
-      <% marks.forEach(function(mark){ %>
+          <tr>
+            <td><%= mark.student_name %></td>
+            <td><%= mark.module_name %></td>
+            <td><%= mark.credits %></td>
+            <td><%= mark.mark %></td>
+            <td><%= mark.is_resit ? "Yes" : "No" %></td>
 
-      <tr>
-        <td><%= mark.student_name %></td>
-        <td><%= mark.module_name %></td>
-        <td><%= mark.credits %></td>
-        <td><%= mark.mark %></td>
-        <td><%= mark.is_resit ? "Yes" : "No" %></td>
+            <td class="actions">
+              <a href="/marks/edit/<%= mark.id %>" class="btn small">Edit</a>
+              <a href="/marks/delete/<%= mark.id %>" class="btn small danger"
+                >Delete</a
+              >
+            </td>
+          </tr>
 
-        <td>
-          <a href="/marks/edit/<%= mark.id %>">Edit</a>
-
-          <a href="/marks/delete/<%= mark.id %>">Delete</a>
-        </td>
-      </tr>
-
-      <% }) %>
-    </table>
+          <% }) %>
+        </table>
+      </div>
+    </div>
   </body>
 </html>

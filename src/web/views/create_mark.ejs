@@ -1,60 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Add Mark</title>
-</head>
+  <head>
+    <title>Add Mark</title>
+    <link rel="stylesheet" href="/css/marks.css">
+  </head>
 
-<body>
+  <body>
+    <div class="add-container">
+      <h1>Add Module Mark</h1>
 
-<h1>Add Module Mark</h1>
+      <form action="/marks/create" method="POST">
+        <label>Student</label>
+        <select name="student_id">
+          <% students.forEach(function(student){ %>
+          <option value="<%= student.id %>"><%= student.name %></option>
+          <% }) %>
+        </select>
 
-<form action="/marks/create" method="POST">
+        <label>Module</label>
+        <select name="module_id">
+          <% modules.forEach(function(module){ %>
+          <option value="<%= module.id %>"><%= module.name %></option>
+          <% }) %>
+        </select>
 
-<label>Student</label><br>
+        <label>Mark</label>
+        <input type="number" name="mark" required />
 
-<select name="student_id">
+        <div class="checkbox-group">
+          <input type="checkbox" name="is_resit" id="resit" />
+          <label for="resit">Resit?</label>
+        </div>
 
-<% students.forEach(function(student){ %>
-
-<option value="<%= student.id %>">
-<%= student.name %>
-</option>
-
-<% }) %>
-
-</select>
-
-<br><br>
-
-<label>Module</label><br>
-
-<select name="module_id">
-
-<% modules.forEach(function(module){ %>
-
-<option value="<%= module.id %>">
-<%= module.name %>
-</option>
-
-<% }) %>
-
-</select>
-
-<br><br>
-
-<label>Mark</label><br>
-<input type="number" name="mark" required>
-
-<br><br>
-
-<label>Resit?</label>
-<input type="checkbox" name="is_resit">
-
-<br><br>
-
-<button type="submit">Save Mark</button>
-
-</form>
-
-</body>
+        <button type="submit">Save Mark</button>
+      </form>
+    </div>
+  </body>
 </html>

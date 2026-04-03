@@ -1,22 +1,26 @@
-
 body {
-    margin: 0;
-    font-family: "Segoe UI", sans-serif;
-  }
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+}
 .officer-list {
   margin-top: 10px;
 }
 
+.cofficer-container {
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
 .officer-row {
-  display:block;
- 
+  display: block;
+
   padding: 1px 0;
   border-radius: 1px #ddd;
   margin-bottom: 10px;
   transition: 0.2s ease;
 
   border-bottom: 1px solid#ddd;
-
 }
 
 .officer-row:hover {
@@ -64,9 +68,10 @@ h1 {
 
 /* Create Officer Style*/
 
-.container {
+.ccofficer-container {
   max-width: 500px;
   margin: 60px auto;
+  padding: 0 20px;
 }
 
 .officer-page-header h1 {
@@ -104,6 +109,16 @@ button:hover {
 }
 
 /*Edit Officer Style  */
+
+
+
+
+
+.edit-officer-container{
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
 
 .edit-officer-header {
   font-size: 30px;

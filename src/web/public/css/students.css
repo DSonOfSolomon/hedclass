@@ -1,11 +1,12 @@
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: #f5f7fa;
+  
 }
 
-.container {
-  padding: 30px;
+.student-container {
+  padding: 36px;
+  
 }
 
 h1 {
@@ -40,7 +41,7 @@ h1 {
 
 .table-wrapper {
   overflow-x: auto;
-  border: 1px solid #ddd;
+  
 }
 
 table {
@@ -96,7 +97,7 @@ td.actions {
 
 /*Edit Student Style*/
 
-.edit-student-container {
+.container {
   max-width: 500px;
   margin: 60px auto;
 }

@@ -1,0 +1,179 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f5f7fa;
+}
+
+.mark-container {
+  padding: 30px;
+}
+
+h1 {
+  margin-bottom: 15px;
+}
+
+.btn {
+  display: inline-block;
+  background: #0a192f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 16px;
+  text-decoration: none;
+  margin-bottom: 15px;
+}
+
+.btn.small {
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.btn.danger {
+  background: #e74c3c;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th {
+  background: #0a192f;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+  background: #f9fafb;
+}
+
+.actions {
+  text-align: right;
+}
+
+/*Add Module Mark Styling*/
+
+/* Center container */
+.add-container {
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+form {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 500;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.checkbox-group input {
+  width: auto;
+  margin-right: 8px;
+}
+
+button {
+  
+  margin-top: 20px;
+  padding: 10px;
+  background: #0a192f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #112d4e;
+}
+
+/*Edit Mark Styling*/
+/* Center container */
+.edit-container {
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+form {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 500;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.checkbox-group input {
+  width: auto;
+  margin-right: 8px;
+}
+
+button {
+ 
+  margin-top: 20px;
+  padding: 10px;
+  background: #0a192f;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #112d4e;
+}
