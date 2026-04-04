@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Assignments</title>
+  <link rel="stylesheet" href="/css/manage_assignments.css">
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Manage Assignments</h1>
+
+    <table>
+      <tr>
+        <th>Officer</th>
+        <th>Degree</th>
+        <th>Action</th>
+      </tr>
+
+      <% assignments.forEach(function(a){ %>
+      <tr>
+        <td><%= a.officer_name %></td>
+        <td><%= a.degree_name %></td>
+        <td>
+          <a href="/admin/unassign/<%= a.id %>" class="delete-btn">
+            Unassign
+          </a>
+        </td>
+      </tr>
+      <% }) %>
+
+    </table>
+  </div>
+
+</body>
+</html>

@@ -81,4 +81,16 @@ router.post(
   adminController.updateOfficer
 );
 
+router.get(
+  "/admin/assignments",
+  authMiddleware.isAdmin,
+  adminController.listAssignments
+);
+
+router.get(
+  "/admin/unassign/:id",
+  authMiddleware.isAdmin,
+  adminController.unassignOfficer
+);
+
 module.exports = router;

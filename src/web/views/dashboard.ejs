@@ -41,7 +41,25 @@
       <div class="summary">
         <div class="card">Students<br /><strong><%= students %></strong></div>
         <div class="card">Degrees<br /><strong><%= degrees %></strong></div>
-        <div class="card">Officers<br /><strong><%= officers %></strong></div>
+        <div class="card">Modules<br /><strong><%= modules %></strong></div>
+      </div>
+
+      <h2>Programme Summary</h2>
+
+      <div class="table-card">
+        <table>
+          <tr>
+            <th>Degree</th>
+            <th>Students</th>
+          </tr>
+
+          <% programmes.forEach(function(p){ %>
+          <tr>
+            <td><%= p.name %></td>
+            <td><%= p.count %></td>
+          </tr>
+          <% }) %>
+        </table>
       </div>
 
       <h2>Classification Distribution</h2>

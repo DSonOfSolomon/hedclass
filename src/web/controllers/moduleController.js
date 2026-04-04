@@ -4,13 +4,16 @@ const db = require("../models/db");
 List all modules
 */
 exports.listModules = (req, res) => {
+
+  const officerId = req.session.user.id;
   const sql = `
-    SELECT modules.*, degrees.name AS degree_name
+    SELECT modules.*
     FROM modules
-    LEFT JOIN degrees ON modules.degree_id = degrees.id
+    JOIN officer_degrees ON modules.degree_id = officer_degrees.degree_id
+    WHERE officer_degrees.officer_id = ?
     `;
 
-  db.query(sql, (err, results) => {
+  db.query(sql, [officerId], (err, results) => {
     if (err) {
       console.error(err);
       return res.send("Database error");

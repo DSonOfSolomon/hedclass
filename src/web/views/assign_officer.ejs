@@ -13,21 +13,21 @@
         <form action="/admin/assign" method="POST">
           <label>Select Officer</label>
 
-          <select name="officer_id">
+          <select name="officer_id" required>
+            <option value="" disabled selected>-- Select Officer --</option>
+
             <% officers.forEach(function(officer){ %>
-
             <option value="<%= officer.id %>"><%= officer.name %></option>
-
             <% }) %>
           </select>
 
           <label>Select Degree</label>
 
-          <select name="degree_id">
+          <select name="degree_id" required>
+            <option value="" disabled selected>-- Select Degree --</option>
+
             <% degrees.forEach(function(degree){ %>
-
             <option value="<%= degree.id %>"><%= degree.name %></option>
-
             <% }) %>
           </select>
 

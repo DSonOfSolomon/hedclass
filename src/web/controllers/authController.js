@@ -72,47 +72,74 @@ exports.dashboard = (req, res) => {
 
   const user = req.session.user;
 
-  const studentCountQuery = "SELECT COUNT(*) AS total_students FROM students";
-  const degreeCountQuery = "SELECT COUNT(*) AS total_degrees FROM degrees";
-  const officerCountQuery =
-    "SELECT COUNT(*) AS total_officers FROM users WHERE role='officer'";
-
+  const studentCountQuery = `
+    SELECT COUNT(*) AS total_students
+    FROM students
+    JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
+    WHERE officer_degrees.officer_id = ?
+  `;
+  const degreeCountQuery = `
+  SELECT COUNT(*) AS total_degrees
+  FROM officer_degrees
+  WHERE officer_id = ?
+`;
+  const moduleCountQuery = `
+  SELECT COUNT(*) AS total_modules
+  FROM modules
+  JOIN officer_degrees ON modules.degree_id = officer_degrees.degree_id
+  WHERE officer_degrees.officer_id = ?
+  `;
+  const programmeQuery = `
+  SELECT degrees.name, COUNT(students.id) AS count
+  FROM degrees
+  JOIN officer_degrees ON degrees.id = officer_degrees.degree_id
+  LEFT JOIN students ON students.degree_id = degrees.id
+  WHERE officer_degrees.officer_id = ?
+  GROUP BY degrees.id
+`;
   const classificationQuery = `
   SELECT classification, COUNT(*) AS count
   FROM students
+  JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
+  WHERE officer_degrees.officer_id = ?
   GROUP BY classification
-  `;
+`;
 
-  db.query(studentCountQuery, (err, studentResult) => {
+  const officerId = req.session.user.id;
+
+  db.query(studentCountQuery, [officerId], (err, studentResult) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
     }
 
-    db.query(degreeCountQuery, (err, degreeResult) => {
+    db.query(degreeCountQuery, [officerId], (err, degreeResult) => {
       if (err) {
         console.error(err);
         return res.send("Database error");
       }
 
-      db.query(officerCountQuery, (err, officerResult) => {
+      db.query(classificationQuery, [officerId], (err, classResults) => {
         if (err) {
           console.error(err);
           return res.send("Database error");
         }
+        db.query(moduleCountQuery, [officerId], (err, moduleResult) => {
+          if (err) return res.send("Database error");
 
-        db.query(classificationQuery, (err, classResults) => {
-          if (err) {
-            console.error(err);
-            return res.send("Database error");
-          }
+          db.query(programmeQuery, [officerId], (err, programmeResults) => {
+            if (err) {
+              return res.send("Database error");
+            }
 
-          res.render("dashboard", {
-            user: user,
-            students: studentResult[0].total_students,
-            degrees: degreeResult[0].total_degrees,
-            officers: officerResult[0].total_officers,
-            classifications: classResults,
+            res.render("dashboard", {
+              user: user,
+              students: studentResult[0].total_students,
+              degrees: degreeResult[0].total_degrees,
+              modules: moduleResult[0].total_modules,
+              classifications: classResults,
+              programmes: programmeResults,
+            });
           });
         });
       });
@@ -126,6 +153,7 @@ Destroys the session
 */
 exports.logout = (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie("connect.sid");
     res.redirect("/login");
   });
 };

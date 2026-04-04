@@ -4,13 +4,17 @@ const db = require("../models/db");
 Show all students
 */
 exports.listStudents = (req, res) => {
-  const sql = `
-    SELECT students.*, degrees.name AS degree_name
-    FROM students
-    LEFT JOIN degrees ON students.degree_id = degrees.id
-    `;
 
-  db.query(sql, (err, results) => {
+  const officerId = req.session.user.id;
+  const sql = `
+     SELECT students.*, degrees.name AS degree_name
+    FROM students
+    JOIN degrees ON students.degree_id = degrees.id
+    JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
+    WHERE officer_degrees.officer_id = ?
+  `;
+
+  db.query(sql, [officerId], (err, results) => {
     if (err) {
       console.error(err);
       return res.send("Database error");

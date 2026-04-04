@@ -113,10 +113,10 @@ exports.assignOfficer = (req, res) => {
   // First check if this assignment already exists
   const checkSql = `
     SELECT * FROM officer_degrees
-    WHERE officer_id = ? AND degree_id = ?
+    WHERE degree_id = ?
     `;
 
-  db.query(checkSql, [officer_id, degree_id], (err, results) => {
+  db.query(checkSql, [degree_id], (err, results) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
@@ -124,7 +124,7 @@ exports.assignOfficer = (req, res) => {
 
     // If assignment already exists, do not insert again
     if (results.length > 0) {
-      return res.send("This officer is already assigned to that degree.");
+      return res.send("This degree is already assigned to another officer.");
     }
 
     // Insert new assignment
@@ -187,4 +187,38 @@ exports.updateOfficer = (req, res) => {
       res.redirect("/admin/officers");
     }
   );
+};
+
+exports.listAssignments = (req, res) => {
+  const sql = `
+    SELECT officer_degrees.id,
+           users.name AS officer_name,
+           degrees.name AS degree_name
+    FROM officer_degrees
+    JOIN users ON officer_degrees.officer_id = users.id
+    JOIN degrees ON officer_degrees.degree_id = degrees.id
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
+
+    res.render("manage_assignments", { assignments: results });
+  });
+};
+
+
+exports.unassignOfficer = (req, res) => {
+  const id = req.params.id;
+
+  db.query("DELETE FROM officer_degrees WHERE id = ?", [id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.send("Error unassigning");
+    }
+
+    res.redirect("/admin/assignments");
+  });
 };
