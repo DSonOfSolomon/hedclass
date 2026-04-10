@@ -8,6 +8,13 @@ const bcrypt = require("bcrypt");
 This function displays the login page
 */
 exports.showLogin = (req, res) => {
+  if (req.session.user) {
+    if (req.session.user.role === "admin") {
+      return res.redirect("/admin/dashboard");
+    } else {
+      return res.redirect("/dashboard");
+    }
+  }
   res.render("login");
 };
 
@@ -56,20 +63,10 @@ exports.login = (req, res) => {
   });
 };
 
-/*
-Dashboard page
-This checks if a user session exists before allowing access
-*/
-/*
-Dashboard page
-Checks if user is logged in and shows system summary
-*/
 exports.dashboard = (req, res) => {
-  // SECURITY: ensure user is logged in
   if (!req.session.user) {
     return res.redirect("/login");
   }
-
   const user = req.session.user;
 
   const studentCountQuery = `

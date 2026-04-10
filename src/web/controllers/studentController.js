@@ -1,18 +1,21 @@
 const db = require("../models/db");
 
-/*
-Show all students
-*/
-exports.listStudents = (req, res) => {
 
+
+exports.listStudents = (req, res) => {
+  const filter = req.query.filter;
   const officerId = req.session.user.id;
-  const sql = `
+  let sql = `
      SELECT students.*, degrees.name AS degree_name
     FROM students
     JOIN degrees ON students.degree_id = degrees.id
     JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
     WHERE officer_degrees.officer_id = ?
   `;
+
+  if (filter === "review") {
+    sql += " AND students.needs_review = 1";
+  }
 
   db.query(sql, [officerId], (err, results) => {
     if (err) {
@@ -163,12 +166,18 @@ exports.classifyStudent = (req, res) => {
     let year3Total = 0;
     let year3Credits = 0;
 
+    let hasFail = false;
+    let needsReview = false;
+
     results.forEach((row) => {
-      // Apply resit cap rule
       let markForCalculation = row.mark;
 
       if (row.is_resit && row.mark > 40) {
         markForCalculation = 40;
+      }
+
+      if (markForCalculation < 40) {
+        hasFail = true;
       }
 
       const weighted = markForCalculation * row.credits;
@@ -195,26 +204,54 @@ exports.classifyStudent = (req, res) => {
 
     let classification;
 
-    if (finalAverage >= 70) classification = "First";
+    if (hasFail) {
+      classification = "Not Eligible (Fail)";
+    } else if (finalAverage >= 70) classification = "First";
     else if (finalAverage >= 60) classification = "2:1";
     else if (finalAverage >= 50) classification = "2:2";
     else if (finalAverage >= 40) classification = "Third";
     else classification = "Fail";
 
-    const rationale = `
+    let rationale = `
     Year 2 Average: ${year2Average.toFixed(2)}
     Year 3 Average: ${year3Average.toFixed(2)}
-
+    
     Final Calculation:
-    (${year2Average.toFixed(2)} × ${y2w}) + (${year3Average.toFixed(2)} × ${y3w})
-
+    (${year2Average.toFixed(2)} × ${y2w}) + (${year3Average.toFixed(
+      2
+    )} × ${y3w})
+    
     Final Average: ${finalAverage.toFixed(2)}
     Classification: ${classification}
     `;
 
+    if (hasFail) {
+      rationale +=
+        "\n⚠️ Student has failed modules → Not eligible for honours classification.";
+    }
+
+    // Flag if student has fails
+    if (hasFail) {
+      needsReview = true;
+    }
+
+    // Flag borderline cases (within 1% of boundary)
+    if (
+      (finalAverage >= 69 && finalAverage < 70) ||
+      (finalAverage >= 59 && finalAverage < 60) ||
+      (finalAverage >= 49 && finalAverage < 50) ||
+      (finalAverage >= 39 && finalAverage < 40)
+    ) {
+      needsReview = true;
+    }
+
+    if (needsReview) {
+      rationale += "\n🔍 Flagged for manual review (borderline or rule issue).";
+    }
+
     const updateSql = `
       UPDATE students
-      SET classification = ?, final_average = ?, year2_average = ?, year3_average = ?, rationale = ?
+      SET classification = ?, final_average = ?, year2_average = ?, year3_average = ?, rationale = ?, needs_review = ?
       WHERE id = ?
     `;
 
@@ -226,6 +263,7 @@ exports.classifyStudent = (req, res) => {
         year2Average,
         year3Average,
         rationale,
+        needsReview,
         studentId,
       ],
       (err) => {
@@ -234,7 +272,7 @@ exports.classifyStudent = (req, res) => {
           return res.send("Error updating classification");
         }
 
-        res.redirect("/students");
+        res.redirect("/students#student-" + studentId);
       }
     );
   });
@@ -272,5 +310,24 @@ exports.saveOverride = (req, res) => {
     }
 
     res.redirect("/students");
+  });
+};
+
+exports.getStudents = (req, res) => {
+  const filter = req.query.filter;
+
+  let sql = `
+    SELECT students.*, degrees.name AS degree_name
+    FROM students
+    JOIN degrees ON students.degree_id = degrees.id
+  `;
+
+  if (filter === "review") {
+    sql += " WHERE students.needs_review = 1";
+  }
+
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+    res.render("students", { students: results });
   });
 };

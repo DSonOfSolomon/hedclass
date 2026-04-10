@@ -10,6 +10,8 @@
       <h1>Student Cohort</h1>
 
       <a href="/students/create" class="btn">+ Add Student</a>
+      <a href="/students" class="btn">All Students</a>
+      <a href="/students?filter=review" class="btn">⚠️ Needs Review Only</a>
 
       <div class="table-wrapper">
         <table>
@@ -30,19 +32,22 @@
 
           <% students.forEach(function(student){ %>
           <tr>
+            <tr id="student-<%= student.id %>"></tr>
             <td><%= student.id %></td>
             <td><%= student.name %></td>
             <td><%= student.student_number %></td>
             <td><%= student.degree_name %></td>
 
-            <td><%= student.classification || "Not calculated" %></td>
+            <td>
+              <%= student.classification || "Not calculated" %> <% if
+              (student.needs_review) { %>
+              <br />
+              <span class="review-flag"> ⚠️ Needs Review</span>
+              <% } %>
+            </td>
             <td><%= student.override_classification || "-" %></td>
             <td><%= student.override_reason || "-" %></td>
 
-            <td>
-              <%= student.final_average ? student.final_average.toFixed(2) : "-"
-              %>
-            </td>
             <td>
               <%= student.year2_average ? student.year2_average.toFixed(2) : "-"
               %>
@@ -51,13 +56,17 @@
               <%= student.year3_average ? student.year3_average.toFixed(2) : "-"
               %>
             </td>
+            <td>
+              <%= student.final_average ? student.final_average.toFixed(2) : "-"
+              %>
+            </td>
 
             <td class="rationale">
               <pre><%= student.rationale %></pre>
             </td>
 
             <td class="actions">
-              <a href="/students/classify/<%= student.id %>" class="btn run "
+              <a href="/students/classify/<%= student.id %>" class="btn run"
                 >Run</a
               >
               <a href="/students/override/<%= student.id %>" class="btn small"
