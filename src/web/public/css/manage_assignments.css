@@ -28,6 +28,10 @@ body {
     border-radius: 10px;
     overflow: hidden;
   }
+
+  th:last-child{
+    text-align: right;
+  }
   
  
   th {

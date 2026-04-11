@@ -77,7 +77,9 @@
               >
               <a
                 href="/students/delete/<%= student.id %>"
+
                 class="btn small danger"
+                onclick="return confirm('Are you sure you want to delete this student? This action cannot be undone.')"
                 >Delete</a
               >
             </td>

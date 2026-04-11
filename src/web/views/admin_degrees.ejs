@@ -22,7 +22,9 @@
 
           <div class="actions">
             <a href="/admin/degrees/edit/<%= degree.id %>" class="edt-btn">Edit</a> 
-            <a href="/admin/degrees/delete/<%= degree.id %>" class="dlt-btn">Delete</a>
+            <a href="/admin/degrees/delete/<%= degree.id %>"
+              onclick="return confirm('Are you sure you want to delete this programme? This action cannot be undone.')"
+               class="dlt-btn">Delete</a>
           </div>
         </div>
         <% }) %> 

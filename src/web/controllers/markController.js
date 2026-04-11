@@ -1,8 +1,6 @@
 const db = require("../models/db");
 
-/*
-List all marks
-*/
+
 exports.listMarks = (req, res) => {
 
   const officerId = req.session.user.id;
@@ -25,9 +23,7 @@ exports.listMarks = (req, res) => {
   });
 };
 
-/*
-Show mark entry form
-*/
+
 exports.showCreateMark = (req, res) => {
   const studentQuery = "SELECT * FROM students";
   const moduleQuery = "SELECT * FROM modules";
@@ -43,9 +39,7 @@ exports.showCreateMark = (req, res) => {
   });
 };
 
-/*
-Save mark
-*/
+
 exports.createMark = (req, res) => {
   const { student_id, module_id, mark, is_resit } = req.body;
 
@@ -64,9 +58,7 @@ exports.createMark = (req, res) => {
   });
 };
 
-/*
-Show edit mark form
-*/
+
 exports.showEditMark = (req, res) => {
   const id = req.params.id;
 
@@ -96,9 +88,7 @@ exports.showEditMark = (req, res) => {
   });
 };
 
-/*
-Update mark
-*/
+
 exports.updateMark = (req, res) => {
   const id = req.params.id;
 
@@ -120,9 +110,7 @@ exports.updateMark = (req, res) => {
   });
 };
 
-/*
-Delete mark
-*/
+
 exports.deleteMark = (req, res) => {
   const id = req.params.id;
 

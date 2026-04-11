@@ -1,12 +1,10 @@
-// Import database connection
+
 const db = require("../models/db");
 
-// Import bcrypt for password hashing
+
 const bcrypt = require("bcrypt");
 
-/*
-Show all classification officers
-*/
+
 exports.listOfficers = (req, res) => {
   const sql = "SELECT * FROM users WHERE role = 'officer'";
 
@@ -16,21 +14,17 @@ exports.listOfficers = (req, res) => {
       return res.send("Database error");
     }
 
-    // Render officer list page
+    
     res.render("admin_officers", { officers: results });
   });
 };
 
-/*
-Show create officer form
-*/
+
 exports.showCreateOfficer = (req, res) => {
   res.render("create_officer");
 };
 
-/*
-Create a new officer
-*/
+
 exports.createOfficer = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -52,9 +46,7 @@ exports.createOfficer = async (req, res) => {
   });
 };
 
-/*
-Delete an officer
-*/
+
 exports.deleteOfficer = (req, res) => {
   const officerId = req.params.id;
 
@@ -70,15 +62,7 @@ exports.deleteOfficer = (req, res) => {
   });
 };
 
-/*
-Show assignment page
 
-This loads:
-- all officers
-- all degrees
-
-so the admin can choose which officer manages which degree
-*/
 exports.showAssignPage = (req, res) => {
   const officersQuery = "SELECT * FROM users WHERE role = 'officer'";
   const degreesQuery = "SELECT * FROM degrees";

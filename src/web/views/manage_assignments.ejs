@@ -22,7 +22,9 @@
         <td><%= a.officer_name %></td>
         <td><%= a.degree_name %></td>
         <td>
-          <a href="/admin/unassign/<%= a.id %>" class="delete-btn">
+          <a href="/admin/unassign/<%= a.id %>" 
+            onclick="return confirm('Are you sure you want to unassign this officer? This action cannot be undone.')"
+            class="delete-btn">
             Unassign
           </a>
         </td>

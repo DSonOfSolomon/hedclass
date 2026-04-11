@@ -1,16 +1,16 @@
 const db = require("../models/db");
 
-/*
-List all modules
-*/
+
 exports.listModules = (req, res) => {
 
   const officerId = req.session.user.id;
   const sql = `
-    SELECT modules.*
+    SELECT modules.*, degrees.name AS degree_name
     FROM modules
-    JOIN officer_degrees ON modules.degree_id = officer_degrees.degree_id
-    WHERE officer_degrees.officer_id = ?
+    JOIN degrees ON modules.degree_id = degrees.id
+    LEFT JOIN officer_degrees 
+    ON modules.degree_id = officer_degrees.degree_id
+    WHERE officer_degrees.officer_id = ? OR officer_degrees.officer_id IS NULL
     `;
 
   db.query(sql, [officerId], (err, results) => {
@@ -23,9 +23,7 @@ exports.listModules = (req, res) => {
   });
 };
 
-/*
-Show create module form
-*/
+
 exports.showCreateModule = (req, res) => {
   const sql = "SELECT * FROM degrees";
 
@@ -39,9 +37,7 @@ exports.showCreateModule = (req, res) => {
   });
 };
 
-/*
-Create module
-*/
+
 exports.createModule = (req, res) => {
   const { name, credits, year, degree_id } = req.body;
 
@@ -60,9 +56,7 @@ exports.createModule = (req, res) => {
   });
 };
 
-/*
-Show edit module form
-*/
+
 exports.showEditModule = (req, res) => {
   const id = req.params.id;
 
@@ -89,9 +83,7 @@ exports.showEditModule = (req, res) => {
   });
 };
 
-/*
-Update module
-*/
+
 exports.updateModule = (req, res) => {
 
     const id = req.params.id;
@@ -117,9 +109,7 @@ exports.updateModule = (req, res) => {
 
 };
 
-/*
-Delete module
-*/
+
 exports.deleteModule = (req, res) => {
   const id = req.params.id;
 

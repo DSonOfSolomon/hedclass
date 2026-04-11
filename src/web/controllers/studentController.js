@@ -27,9 +27,7 @@ exports.listStudents = (req, res) => {
   });
 };
 
-/*
-Show create student form
-*/
+
 exports.showCreateStudent = (req, res) => {
   const sql = "SELECT * FROM degrees";
 
@@ -43,9 +41,7 @@ exports.showCreateStudent = (req, res) => {
   });
 };
 
-/*
-Create student
-*/
+
 exports.createStudent = (req, res) => {
   const { name, student_number, degree_id } = req.body;
 
@@ -64,9 +60,7 @@ exports.createStudent = (req, res) => {
   });
 };
 
-/*
-Show edit student form
-*/
+
 exports.showEditStudent = (req, res) => {
   const id = req.params.id;
 
@@ -93,9 +87,7 @@ exports.showEditStudent = (req, res) => {
   });
 };
 
-/*
-Update student
-*/
+
 exports.updateStudent = (req, res) => {
   const id = req.params.id;
   const { name, student_number, degree_id } = req.body;
@@ -116,9 +108,7 @@ exports.updateStudent = (req, res) => {
   });
 };
 
-/*
-Delete student
-*/
+
 exports.deleteStudent = (req, res) => {
   const id = req.params.id;
 
@@ -134,9 +124,7 @@ exports.deleteStudent = (req, res) => {
   });
 };
 
-/*
-Classify a student based on module marks
-*/
+
 exports.classifyStudent = (req, res) => {
   const studentId = req.params.id;
 

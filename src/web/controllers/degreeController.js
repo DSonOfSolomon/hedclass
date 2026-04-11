@@ -1,10 +1,8 @@
-// Import database connection
+
 const db = require("../models/db");
 
 
-/*
-Show all degrees
-*/
+
 exports.listDegrees = (req, res) => {
 
     const sql = "SELECT * FROM degrees";
@@ -23,9 +21,7 @@ exports.listDegrees = (req, res) => {
 };
 
 
-/*
-Show create degree form
-*/
+
 exports.showCreateDegree = (req, res) => {
 
     res.render("create_degree");
@@ -33,9 +29,7 @@ exports.showCreateDegree = (req, res) => {
 };
 
 
-/*
-Create a new degree
-*/
+
 exports.createDegree = (req, res) => {
 
     const { name, description, year2_weight, year3_weight } = req.body;
@@ -59,9 +53,7 @@ exports.createDegree = (req, res) => {
 };
 
 
-/*
-Delete degree
-*/
+
 exports.deleteDegree = (req, res) => {
 
     const degreeId = req.params.id;

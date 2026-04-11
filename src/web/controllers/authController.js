@@ -1,12 +1,10 @@
-// Import database connection
+
 const db = require("../models/db");
 
-// Import bcrypt for password comparison
+
 const bcrypt = require("bcrypt");
 
-/*
-This function displays the login page
-*/
+
 exports.showLogin = (req, res) => {
   if (req.session.user) {
     if (req.session.user.role === "admin") {
@@ -19,13 +17,13 @@ exports.showLogin = (req, res) => {
 };
 
 /*
-This function handles login form submission
+ login form submission
 */
 exports.login = (req, res) => {
-  // Get email and password from the form
+  
   const { email, password } = req.body;
 
-  // Query the database for a user with this email
+  
   const sql = "SELECT * FROM users WHERE email = ?";
 
   db.query(sql, [email], async (err, results) => {
@@ -34,7 +32,7 @@ exports.login = (req, res) => {
       return res.send("Database error");
     }
 
-    // If no user found
+    
     if (results.length === 0) {
       return res.send("User not found");
     }
@@ -47,14 +45,8 @@ exports.login = (req, res) => {
       return res.send("Incorrect password");
     }
 
-    // Save user in session
     req.session.user = user;
 
-    /*
-    Redirect based on role
-    Admin → admin dashboard
-    Officer → classification dashboard
-    */
     if (user.role === "admin") {
       return res.redirect("/admin/dashboard");
     } else {
@@ -144,10 +136,7 @@ exports.dashboard = (req, res) => {
   });
 };
 
-/*
-Logout function
-Destroys the session
-*/
+
 exports.logout = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("connect.sid");
