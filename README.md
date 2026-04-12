@@ -138,10 +138,19 @@ src/seeder/data.sql
 ##  Project Structure
 
 ```
-src/
-  ├── seeder/
-  ├── web/
-  └── api/ (optional)
+44385991/
+├── src/
+│   ├── seeder/      
+│   ├── web/ 
+│   
+├── docs/
+│   └── 40490439.pdf 
+│ 
+├── gitlog.txt
+├── README.md
+├── .gitignore
+├── package.json
+└── package-lock.json
 ```
 
 ---
