@@ -194,10 +194,10 @@ exports.classifyStudent = (req, res) => {
 
     if (hasFail) {
       classification = "Not Eligible (Fail)";
-    } else if (finalAverage >= 70) classification = "First";
-    else if (finalAverage >= 60) classification = "2:1";
-    else if (finalAverage >= 50) classification = "2:2";
-    else if (finalAverage >= 40) classification = "Third";
+    } else if (finalAverage >= 70) classification = "First Class Honours (1st)";
+    else if (finalAverage >= 60) classification = "Upper Second Class Honours (2:1)";
+    else if (finalAverage >= 50) classification = "Lower Second Class Honours (2:2)";
+    else if (finalAverage >= 40) classification = "Third Class Honours";
     else classification = "Fail";
 
     let rationale = `
