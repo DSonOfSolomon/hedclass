@@ -13,7 +13,7 @@ const markRoutes = require("./routes/markRoutes");
 
 
 const app = express();
-const PORT = 4000;
+const PORT = 3000;
 
 
 app.set("view engine", "ejs");
@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-    secret: "hedclass_secret_key", // secret used to sign the session cookie
+    secret: "hedclass_secret_key", 
     resave: false,                 
     saveUninitialized: false       // don't create sessions until something stored
 }));

@@ -91,6 +91,7 @@ exports.dashboard = (req, res) => {
   FROM students
   JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
   WHERE officer_degrees.officer_id = ?
+  AND classification IS NOT NULL
   GROUP BY classification
 `;
 
