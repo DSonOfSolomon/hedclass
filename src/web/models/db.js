@@ -21,7 +21,7 @@ connection.connect((err) => {
     }
 
     
-    console.log("Connected to MySQL database.");
+    
 });
 
 // Export the connection so other files can use it

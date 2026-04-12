@@ -59,18 +59,18 @@ INSERT INTO modules (id, name, credits, year, degree_id) VALUES
 
 -- COMPUTER SCIENCE (degree 1)
 
-(1,'Y2 Module A',20,2,1),
-(2,'Y2 Module B',20,2,1),
-(3,'Y2 Module C',20,2,1),
-(4,'Y2 Module D',20,2,1),
-(5,'Y2 Module E',20,2,1),
-(6,'Y2 Module F',20,2,1),
+(1,'CS Y2 Module A',20,2,1),
+(2,'CS Y2 Module B',20,2,1),
+(3,'CS Y2 Module C',20,2,1),
+(4,'CS Y2 Module D',20,2,1),
+(5,'CS Y2 Module E',20,2,1),
+(6,'CS Y2 Module F',20,2,1),
 
-(7,'Dissertation',40,3,1),
-(8,'Y3 Module A',20,3,1),
-(9,'Y3 Module B',20,3,1),
-(10,'Y3 Module C',20,3,1),
-(11,'Y3 Module D',20,3,1),
+(7,'CS Dissertation',40,3,1),
+(8,'CS Y3 Module A',20,3,1),
+(9,'CS Y3 Module B',20,3,1),
+(10,'CS Y3 Module C',20,3,1),
+(11,'CS Y3 Module D',20,3,1),
 
 
 
