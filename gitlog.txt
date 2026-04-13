@@ -1,3 +1,29 @@
+commit 3da489ea9822f70aa1e5af5c74dab0b480b71b3e
+Author: DC(DSonOfSolomon) <danielchioma1@gmail.com>
+Date:   2026-04-13T09:35:54+01:00
+
+    Add CSV export feature and improve dashboard navigation and UI consistency
+
+41	0	src/web/controllers/exportController.js
+25	0	src/web/public/css/classificationOfficerPage.css
+10	0	src/web/public/css/manage_assignments.css
+3	0	src/web/routes/authRoutes.js
+1	1	src/web/views/admin_degrees.ejs
+1	0	src/web/views/admin_officers.ejs
+4	1	src/web/views/dashboard.ejs
+1	1	src/web/views/manage_assignments.ejs
+1	1	src/web/views/marks.ejs
+1	1	src/web/views/modules.ejs
+3	1	src/web/views/students.ejs
+
+commit 3863cb01a0c49e97da18854fda2ffe0b2320ad58
+Author: DC(DSonOfSolomon) <danielchioma1@gmail.com>
+Date:   2026-04-13T08:23:26+01:00
+
+    run git log
+
+18	0	gitlog.txt
+
 commit 15ed37e80ed5a78faf332e5a09ffb938b7661d30
 Author: DC(DSonOfSolomon) <danielchioma1@gmail.com>
 Date:   2026-04-13T08:22:30+01:00
