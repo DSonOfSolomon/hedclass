@@ -19,6 +19,16 @@ body {
   .table-wrapper {
     overflow-x: auto;
   }
+
+  .btn {
+    display: inline-block;
+    background: #0a192f;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 26px;
+    text-decoration: none;
+    margin-bottom: 15px;
+  }
   
   
   table {

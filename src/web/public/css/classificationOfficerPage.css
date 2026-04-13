@@ -220,3 +220,28 @@ th:last-child {
 .profile {
   cursor: pointer;
 }
+
+.export-container {
+  margin-top: 20px;
+  padding: 0 15px;  
+  text-align: center; 
+  margin-bottom: 30px;
+}
+
+.export-btn {
+  display: inline-block;
+}
+
+.export-btn {
+  background-color: #ec920b;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  
+}
+
+.export-btn:hover {
+  background-color: #1d3d6d;
+}
