@@ -1,3 +1,21 @@
+commit 15ed37e80ed5a78faf332e5a09ffb938b7661d30
+Author: DC(DSonOfSolomon) <danielchioma1@gmail.com>
+Date:   2026-04-13T08:22:30+01:00
+
+    Update sql query to fix credit abscence from module marks table. Add more student, module and marks details to seeder(including year 1 deatails). Add 120 credit validation logic and improve classification rules
+
+113	3	src/seeder/data.sql
+1	1	src/web/controllers/markController.js
+22	12	src/web/controllers/studentController.js
+
+commit 030669f2b3c142a20f7bd77e5b458a278eace42c
+Author: DC(DSonOfSolomon) <danielchioma1@gmail.com>
+Date:   2026-04-12T21:31:52+01:00
+
+    Update git log for submission
+
+1372	0	gitlog.txt
+
 commit f735ff0642b54199384bdb8e8c73dc0aa1c93601
 Author: DC(DSonOfSolomon) <danielchioma1@gmail.com>
 Date:   2026-04-12T21:28:28+01:00
