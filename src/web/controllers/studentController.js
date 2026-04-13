@@ -1,7 +1,5 @@
 const db = require("../models/db");
 
-
-
 exports.listStudents = (req, res) => {
   const filter = req.query.filter;
   const officerId = req.session.user.id;
@@ -27,7 +25,6 @@ exports.listStudents = (req, res) => {
   });
 };
 
-
 exports.showCreateStudent = (req, res) => {
   const sql = "SELECT * FROM degrees";
 
@@ -40,7 +37,6 @@ exports.showCreateStudent = (req, res) => {
     res.render("create_student", { degrees });
   });
 };
-
 
 exports.createStudent = (req, res) => {
   const { name, student_number, degree_id } = req.body;
@@ -59,7 +55,6 @@ exports.createStudent = (req, res) => {
     res.redirect("/students");
   });
 };
-
 
 exports.showEditStudent = (req, res) => {
   const id = req.params.id;
@@ -87,7 +82,6 @@ exports.showEditStudent = (req, res) => {
   });
 };
 
-
 exports.updateStudent = (req, res) => {
   const id = req.params.id;
   const { name, student_number, degree_id } = req.body;
@@ -108,7 +102,6 @@ exports.updateStudent = (req, res) => {
   });
 };
 
-
 exports.deleteStudent = (req, res) => {
   const id = req.params.id;
 
@@ -123,7 +116,6 @@ exports.deleteStudent = (req, res) => {
     res.redirect("/students");
   });
 };
-
 
 exports.classifyStudent = (req, res) => {
   const studentId = req.params.id;
@@ -155,6 +147,7 @@ exports.classifyStudent = (req, res) => {
     let year3Credits = 0;
 
     let hasFail = false;
+    let missingCredits = false;
     let needsReview = false;
 
     results.forEach((row) => {
@@ -185,6 +178,11 @@ exports.classifyStudent = (req, res) => {
     const year2Average = year2Credits ? year2Total / year2Credits : 0;
     const year3Average = year3Credits ? year3Total / year3Credits : 0;
 
+    // Ensure full credit requirement is met
+    if (year2Credits !== 120 || year3Credits !== 120) {
+      missingCredits = true;
+    }
+
     const y2w = results[0].year2_weight / 100;
     const y3w = results[0].year3_weight / 100;
 
@@ -192,11 +190,13 @@ exports.classifyStudent = (req, res) => {
 
     let classification;
 
-    if (hasFail) {
+    if (hasFail || missingCredits) {
       classification = "Not Eligible (Fail)";
     } else if (finalAverage >= 70) classification = "First Class Honours (1st)";
-    else if (finalAverage >= 60) classification = "Upper Second Class Honours (2:1)";
-    else if (finalAverage >= 50) classification = "Lower Second Class Honours (2:2)";
+    else if (finalAverage >= 60)
+      classification = "Upper Second Class Honours (2:1)";
+    else if (finalAverage >= 50)
+      classification = "Lower Second Class Honours (2:2)";
     else if (finalAverage >= 40) classification = "Third Class Honours";
     else classification = "Fail";
 
@@ -213,13 +213,23 @@ exports.classifyStudent = (req, res) => {
     Classification: ${classification}
     `;
 
+    if (year2Credits !== 120 || year3Credits !== 120) {
+      rationale +=
+        "\n⚠️ Student does not have full 120 credits for Year 2 or Year 3.";
+    }
+
     if (hasFail) {
       rationale +=
         "\n⚠️ Student has failed modules → Not eligible for honours classification.";
     }
 
+    if (missingCredits) {
+      rationale +=
+        "\n⚠️ Student does not have full 120 credits for Year 2 or Year 3.";
+    }
+
     // Flag if student has fails
-    if (hasFail) {
+    if (hasFail || missingCredits) {
       needsReview = true;
     }
 

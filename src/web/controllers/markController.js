@@ -5,7 +5,7 @@ exports.listMarks = (req, res) => {
 
   const officerId = req.session.user.id;
   const sql = `
-    SELECT marks.*, students.name AS student_name, modules.name AS module_name
+    SELECT marks.*, students.name AS student_name, modules.name AS module_name, modules.credits
     FROM marks
     JOIN students ON marks.student_id = students.id
     JOIN modules ON marks.module_id = modules.id
