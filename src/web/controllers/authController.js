@@ -1,9 +1,6 @@
-
 const db = require("../models/db");
 
-
 const bcrypt = require("bcrypt");
-
 
 exports.showLogin = (req, res) => {
   if (req.session.user) {
@@ -20,10 +17,8 @@ exports.showLogin = (req, res) => {
  login form submission
 */
 exports.login = (req, res) => {
-  
   const { email, password } = req.body;
 
-  
   const sql = "SELECT * FROM users WHERE email = ?";
 
   db.query(sql, [email], async (err, results) => {
@@ -32,7 +27,6 @@ exports.login = (req, res) => {
       return res.send("Database error");
     }
 
-    
     if (results.length === 0) {
       return res.send("User not found");
     }
@@ -95,6 +89,14 @@ exports.dashboard = (req, res) => {
   GROUP BY classification
 `;
 
+  const assignedDegreesQuery = `
+  SELECT degrees.id, degrees.name
+  FROM degrees
+  JOIN officer_degrees 
+  ON degrees.id = officer_degrees.degree_id
+  WHERE officer_degrees.officer_id = ?
+`;
+
   const officerId = req.session.user.id;
 
   db.query(studentCountQuery, [officerId], (err, studentResult) => {
@@ -122,6 +124,13 @@ exports.dashboard = (req, res) => {
               return res.send("Database error");
             }
 
+            db.query(assignedDegreesQuery, [officerId], (err, assignedResults) => {
+              if (err) {
+                return res.send("Database error");
+              }
+
+
+
             res.render("dashboard", {
               user: user,
               students: studentResult[0].total_students,
@@ -129,6 +138,9 @@ exports.dashboard = (req, res) => {
               modules: moduleResult[0].total_modules,
               classifications: classResults,
               programmes: programmeResults,
+              assignedDegrees: assignedResults,
+            });
+            
             });
           });
         });
@@ -136,7 +148,6 @@ exports.dashboard = (req, res) => {
     });
   });
 };
-
 
 exports.logout = (req, res) => {
   req.session.destroy(() => {

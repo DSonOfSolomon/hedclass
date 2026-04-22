@@ -33,17 +33,23 @@
 
           <% students.forEach(function(student){ %>
           <tr>
-            <tr id="student-<%= student.id %>"></tr>
             <td><%= student.id %></td>
             <td><%= student.name %></td>
             <td><%= student.student_number %></td>
             <td><%= student.degree_name %></td>
 
             <td>
-              <%= student.classification || "Not calculated" %> <% if
-              (student.needs_review) { %>
+              <% if (student.override_classification) { %>
+              <strong><%= student.override_classification %></strong>
               <br />
-              <span class="review-flag"> ⚠️ Needs Review</span>
+              <span class="override-note">
+                (Overridden from <%= student.classification || "Not calculated"
+                %>)
+              </span>
+              <% } else { %> <%= student.classification || "Not calculated" %>
+              <% } %> <% if (student.needs_review) { %>
+              <br />
+              <span class="review-flag">⚠️ Needs Review</span>
               <% } %>
             </td>
             <td><%= student.override_classification || "-" %></td>
@@ -78,7 +84,6 @@
               >
               <a
                 href="/students/delete/<%= student.id %>"
-
                 class="btn small danger"
                 onclick="return confirm('Are you sure you want to delete this student? This action cannot be undone.')"
                 >Delete</a
@@ -89,6 +94,5 @@
         </table>
       </div>
     </div>
-    
   </body>
 </html>

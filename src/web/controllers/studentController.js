@@ -3,8 +3,9 @@ const db = require("../models/db");
 exports.listStudents = (req, res) => {
   const filter = req.query.filter;
   const officerId = req.session.user.id;
-  let sql = `
-     SELECT students.*, degrees.name AS degree_name
+
+  let studentSql = `
+    SELECT students.*, degrees.name AS degree_name
     FROM students
     JOIN degrees ON students.degree_id = degrees.id
     JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
@@ -12,16 +13,33 @@ exports.listStudents = (req, res) => {
   `;
 
   if (filter === "review") {
-    sql += " AND students.needs_review = 1";
+    studentSql += " AND students.needs_review = 1";
   }
 
-  db.query(sql, [officerId], (err, results) => {
+  const degreeSql = `
+    SELECT degrees.*
+    FROM degrees
+    JOIN officer_degrees ON degrees.id = officer_degrees.degree_id
+    WHERE officer_degrees.officer_id = ?
+  `;
+
+  db.query(studentSql, [officerId], (err, students) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
     }
 
-    res.render("students", { students: results });
+    db.query(degreeSql, [officerId], (err, degrees) => {
+      if (err) {
+        console.error(err);
+        return res.send("Database error");
+      }
+
+      res.render("students", {
+        students: students,
+        degrees: degrees
+      });
+    });
   });
 };
 
@@ -293,15 +311,15 @@ exports.showOverrideForm = (req, res) => {
 
 exports.saveOverride = (req, res) => {
   const id = req.params.id;
-  const { classification } = req.body;
+  const { override_classification, override_reason } = req.body;
 
   const sql = `
     UPDATE students
-    SET classification = ?
+    SET override_classification = ?, override_reason = ?
     WHERE id = ?
   `;
 
-  db.query(sql, [classification, id], (err) => {
+  db.query(sql, [override_classification, override_reason, id], (err) => {
     if (err) {
       console.error(err);
       return res.send("Error saving override");

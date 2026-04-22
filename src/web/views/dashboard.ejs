@@ -161,8 +161,19 @@
         }
       });
     </script>
-    <div class="export-container">
-      <a href="/export" class="btn export-btn">Export CSV</a>
-    </div>
+   <div class="export-container">
+    <form action="/export" method="GET">
+      <select name="degree_id" required>
+        <option value="">-- Select Programme --</option>
+        <% assignedDegrees.forEach(function(degree){ %>
+          <option value="<%= degree.id %>"><%= degree.name %></option>
+        <% }) %>
+      </select>
+  
+      <button type="submit" class="btn export-btn">
+        Export Programme CSV
+      </button>
+    </form>
+  </div>
   </body>
 </html>
