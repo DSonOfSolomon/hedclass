@@ -80,13 +80,21 @@ exports.dashboard = (req, res) => {
   WHERE officer_degrees.officer_id = ?
   GROUP BY degrees.id
 `;
-  const classificationQuery = `
-  SELECT classification, COUNT(*) AS count
+const classificationQuery = `
+  SELECT 
+    CASE 
+      WHEN COALESCE(students.override_classification, students.classification) LIKE '%First%' THEN 'First Class Honours (1st)'
+      WHEN COALESCE(students.override_classification, students.classification) LIKE '%2:1%' THEN 'Upper Second Class Honours (2:1)'
+      WHEN COALESCE(students.override_classification, students.classification) LIKE '%2:2%' THEN 'Lower Second Class Honours (2:2)'
+      WHEN COALESCE(students.override_classification, students.classification) LIKE '%Third%' THEN 'Third Class Honours'
+      ELSE COALESCE(students.override_classification, students.classification)
+    END AS final_classification,
+    COUNT(*) AS count
   FROM students
   JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
   WHERE officer_degrees.officer_id = ?
-  AND classification IS NOT NULL
-  GROUP BY classification
+    AND (students.classification IS NOT NULL OR students.override_classification IS NOT NULL)
+  GROUP BY final_classification
 `;
 
   const assignedDegreesQuery = `

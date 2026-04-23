@@ -10,6 +10,11 @@
       <h1>Assign Officer to Degree</h1>
 
       <div class="assign-form">
+        <% if (degrees.length === 0) { %>
+          <p style="margin-top:20px; color: #555;">
+            All degree programmes have already been assigned.
+          </p>
+        <% } else %>
         <form action="/admin/assign" method="POST">
           <label>Select Officer</label>
 

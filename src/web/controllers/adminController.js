@@ -1,9 +1,6 @@
-
 const db = require("../models/db");
 
-
 const bcrypt = require("bcrypt");
-
 
 exports.listOfficers = (req, res) => {
   const sql = "SELECT * FROM users WHERE role = 'officer'";
@@ -14,16 +11,13 @@ exports.listOfficers = (req, res) => {
       return res.send("Database error");
     }
 
-    
     res.render("admin_officers", { officers: results });
   });
 };
 
-
 exports.showCreateOfficer = (req, res) => {
   res.render("create_officer");
 };
-
 
 exports.createOfficer = async (req, res) => {
   const { name, email, password } = req.body;
@@ -46,7 +40,6 @@ exports.createOfficer = async (req, res) => {
   });
 };
 
-
 exports.deleteOfficer = (req, res) => {
   const officerId = req.params.id;
 
@@ -62,10 +55,15 @@ exports.deleteOfficer = (req, res) => {
   });
 };
 
-
 exports.showAssignPage = (req, res) => {
   const officersQuery = "SELECT * FROM users WHERE role = 'officer'";
-  const degreesQuery = "SELECT * FROM degrees";
+  const degreesQuery = `
+  SELECT * 
+  FROM degrees
+  WHERE id NOT IN (
+  SELECT degree_ID
+  FROM officer_degrees)
+  `;
 
   db.query(officersQuery, (err, officers) => {
     if (err) {
@@ -192,7 +190,6 @@ exports.listAssignments = (req, res) => {
     res.render("manage_assignments", { assignments: results });
   });
 };
-
 
 exports.unassignOfficer = (req, res) => {
   const id = req.params.id;

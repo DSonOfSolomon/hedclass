@@ -73,7 +73,7 @@
 
           <% classifications.forEach(function(row){ %>
           <tr>
-            <td><%= row.classification %></td>
+            <td><%= row.final_classification %></td>
             <td><%= row.count %></td>
           </tr>
           <% }) %>
@@ -112,7 +112,7 @@
                 });
 
 
-                const labels = <%- JSON.stringify(classifications.map(c => c.classification)) %>;
+                const labels = <%- JSON.stringify(classifications.map(c => c.final_classification)) %>;
                 const data = <%- JSON.stringify(classifications.map(c => c.count)) %>;
 
                 const ctx = document.getElementById('classificationChart');
@@ -164,7 +164,7 @@
    <div class="export-container">
     <form action="/export" method="GET">
       <select name="degree_id" required>
-        <option value="">-- Select Programme --</option>
+        <option value="">-- Select Programme </option>
         <% assignedDegrees.forEach(function(degree){ %>
           <option value="<%= degree.id %>"><%= degree.name %></option>
         <% }) %>
