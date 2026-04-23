@@ -49,13 +49,16 @@
       <div class="table-card">
         <table>
           <tr>
-            <th>Programme</th>
+            <th>Programmes</th>
             <th>Students</th>
           </tr>
 
           <% programmes.forEach(function(p){ %>
-          <tr>
-            <td><%= p.name %></td>
+          <tr
+            onclick="window.location='/programmes/<%= p.id %>'"
+            class="clickable-row"
+          >
+            <td><%= p.name %> <span class="arrow">→</span></td>
             <td><%= p.count %></td>
           </tr>
           <% }) %>
@@ -161,19 +164,19 @@
         }
       });
     </script>
-   <div class="export-container">
-    <form action="/export" method="GET">
-      <select name="degree_id" required>
-        <option value="">-- Select Programme </option>
-        <% assignedDegrees.forEach(function(degree){ %>
+    <div class="export-container">
+      <form action="/export" method="GET">
+        <select name="degree_id" required>
+          <option value="">-- Select Programme</option>
+          <% assignedDegrees.forEach(function(degree){ %>
           <option value="<%= degree.id %>"><%= degree.name %></option>
-        <% }) %>
-      </select>
-  
-      <button type="submit" class="btn export-btn">
-        Export Programme CSV
-      </button>
-    </form>
-  </div>
+          <% }) %>
+        </select>
+
+        <button type="submit" class="btn export-btn">
+          Export Programme CSV
+        </button>
+      </form>
+    </div>
   </body>
 </html>

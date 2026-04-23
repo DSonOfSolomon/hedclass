@@ -2,18 +2,32 @@ const db = require("../models/db");
 
 
 exports.listMarks = (req, res) => {
-
   const officerId = req.session.user.id;
-  const sql = `
-    SELECT marks.*, students.name AS student_name, modules.name AS module_name, modules.credits
+  const degreeId = req.query.degree_id;
+
+  let sql = `
+    SELECT 
+      marks.*,
+      students.name AS student_name,
+      modules.name AS module_name,
+      modules.credits,
+      degrees.name AS degree_name
     FROM marks
     JOIN students ON marks.student_id = students.id
     JOIN modules ON marks.module_id = modules.id
+    JOIN degrees ON students.degree_id = degrees.id
     JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
     WHERE officer_degrees.officer_id = ?
-    `;
+  `;
 
-  db.query(sql, [officerId], (err, results) => {
+  const params = [officerId];
+
+  if (degreeId) {
+    sql += " AND students.degree_id = ?";
+    params.push(degreeId);
+  }
+
+  db.query(sql, params, (err, results) => {
     if (err) {
       console.error(err);
       return res.send("Database error");

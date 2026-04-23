@@ -73,7 +73,7 @@ exports.dashboard = (req, res) => {
   WHERE officer_degrees.officer_id = ?
   `;
   const programmeQuery = `
-  SELECT degrees.name, COUNT(students.id) AS count
+  SELECT degrees.id, degrees.name, COUNT(students.id) AS count
   FROM degrees
   JOIN officer_degrees ON degrees.id = officer_degrees.degree_id
   LEFT JOIN students ON students.degree_id = degrees.id

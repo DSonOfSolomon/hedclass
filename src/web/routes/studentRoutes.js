@@ -66,4 +66,9 @@ router.get(
   authMiddleware.isAuthenticated,
   studentController.saveOverride
   );
+
+  router.get(
+    "/programmes/:id",
+    authMiddleware.isOfficer,
+    studentController.showProgrammeDetails);
 module.exports = router;

@@ -2,9 +2,10 @@ const db = require("../models/db");
 
 exports.listStudents = (req, res) => {
   const filter = req.query.filter;
+  const degreeId = req.query.degree_id;
   const officerId = req.session.user.id;
 
-  let studentSql = `
+  let sql = `
     SELECT students.*, degrees.name AS degree_name
     FROM students
     JOIN degrees ON students.degree_id = degrees.id
@@ -12,8 +13,15 @@ exports.listStudents = (req, res) => {
     WHERE officer_degrees.officer_id = ?
   `;
 
+  const params = [officerId];
+
+  if (degreeId) {
+    sql += " AND students.degree_id = ?";
+    params.push(degreeId);
+  }
+
   if (filter === "review") {
-    studentSql += " AND students.needs_review = 1";
+    sql += " AND students.needs_review = 1";
   }
 
   const degreeSql = `
@@ -23,7 +31,7 @@ exports.listStudents = (req, res) => {
     WHERE officer_degrees.officer_id = ?
   `;
 
-  db.query(studentSql, [officerId], (err, students) => {
+  db.query(sql, params, (err, students) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
@@ -35,10 +43,7 @@ exports.listStudents = (req, res) => {
         return res.send("Database error");
       }
 
-      res.render("students", {
-        students: students,
-        degrees: degrees
-      });
+      res.render("students", { students, degrees });
     });
   });
 };
@@ -345,5 +350,104 @@ exports.getStudents = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) throw err;
     res.render("students", { students: results });
+  });
+};
+
+exports.showProgrammeDetails = (req, res) => {
+  const degreeId = req.params.id;
+  const officerId = req.session.user.id;
+
+  const programmeInfoSql = `
+    SELECT degrees.id, degrees.name
+    FROM degrees
+    JOIN officer_degrees ON degrees.id = officer_degrees.degree_id
+    WHERE degrees.id = ? AND officer_degrees.officer_id = ?
+  `;
+
+  const studentCountSql = `
+    SELECT COUNT(*) AS total_students
+    FROM students
+    JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
+    WHERE students.degree_id = ? AND officer_degrees.officer_id = ?
+  `;
+
+  const moduleCountSql = `
+    SELECT COUNT(*) AS total_modules
+    FROM modules
+    JOIN officer_degrees ON modules.degree_id = officer_degrees.degree_id
+    WHERE modules.degree_id = ? AND officer_degrees.officer_id = ?
+  `;
+
+  const markCountSql = `
+    SELECT COUNT(*) AS total_marks
+    FROM marks
+    JOIN students ON marks.student_id = students.id
+    JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
+    WHERE students.degree_id = ? AND officer_degrees.officer_id = ?
+  `;
+
+  const classificationSql = `
+    SELECT 
+      CASE 
+        WHEN COALESCE(students.override_classification, students.classification) LIKE '%First%' THEN 'First Class Honours (1st)'
+        WHEN COALESCE(students.override_classification, students.classification) LIKE '%2:1%' THEN 'Upper Second Class Honours (2:1)'
+        WHEN COALESCE(students.override_classification, students.classification) LIKE '%2:2%' THEN 'Lower Second Class Honours (2:2)'
+        WHEN COALESCE(students.override_classification, students.classification) LIKE '%Third%' THEN 'Third Class Honours'
+        ELSE COALESCE(students.override_classification, students.classification)
+      END AS final_classification,
+      COUNT(*) AS count
+    FROM students
+    JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
+    WHERE students.degree_id = ?
+      AND officer_degrees.officer_id = ?
+      AND (students.classification IS NOT NULL OR students.override_classification IS NOT NULL)
+    GROUP BY final_classification
+  `;
+
+  db.query(programmeInfoSql, [degreeId, officerId], (err, programmeResult) => {
+    if (err) {
+      console.error(err);
+      return res.send("Database error");
+    }
+
+    if (!programmeResult || programmeResult.length === 0) {
+      return res.send("Programme not found or access denied");
+    }
+
+    db.query(studentCountSql, [degreeId, officerId], (err, studentResult) => {
+      if (err) {
+        console.error(err);
+        return res.send("Database error");
+      }
+
+      db.query(moduleCountSql, [degreeId, officerId], (err, moduleResult) => {
+        if (err) {
+          console.error(err);
+          return res.send("Database error");
+        }
+
+        db.query(markCountSql, [degreeId, officerId], (err, markResult) => {
+          if (err) {
+            console.error(err);
+            return res.send("Database error");
+          }
+
+          db.query(classificationSql, [degreeId, officerId], (err, classifications) => {
+            if (err) {
+              console.error(err);
+              return res.send("Database error");
+            }
+
+            res.render("programme_details", {
+              programme: programmeResult[0],
+              students: studentResult?.[0]?.total_students || 0,
+              modules: moduleResult?.[0]?.total_modules || 0,
+              marks: markResult?.[0]?.total_marks || 0,
+              classifications: classifications || []
+            });
+          });
+        });
+      });
+    });
   });
 };

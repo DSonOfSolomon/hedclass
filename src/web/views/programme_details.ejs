@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Programme Details</title>
+    <link rel="stylesheet" href="" />
+    <link rel="stylesheet" href="/css/classificationOfficerPage.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Programme Details</h1>
+
+      <div class="summary">
+        <a href="/students?degree_id=<%= programme.id %>" class="card-link">
+          <div class="card">Students<br /><strong><%= students %></strong></div>
+        </a>
+
+        <a href="/modules?degree_id=<%= programme.id %>" class="card-link">
+          <div class="card">Modules<br /><strong><%= modules %></strong></div>
+        </a>
+
+        <a href="/marks?degree_id=<%= programme.id %>" class="card-link">
+          <div class="card">Marks<br /><strong><%= marks %></strong></div>
+        </a>
+      </div>
+
+      <h2>Classification Distribution</h2>
+
+      <div class="table-card">
+        <table>
+          <tr>
+            <th>Classification</th>
+            <th>Count</th>
+          </tr>
+
+          <% if (classifications.length === 0) { %>
+          <tr>
+            <td colspan="2">No classifications available</td>
+          </tr>
+          <% } %> <% classifications.forEach(function(row){ %>
+          <tr>
+            <td><%= row.final_classification %></td>
+            <td><%= row.count %></td>
+          </tr>
+          <% }) %>
+        </table>
+      </div>
+
+      <div class="export-container">
+        <a href="/export?degree_id=<%= programme.id %>" class="btn export-btn">
+          Export Programme CSV
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
