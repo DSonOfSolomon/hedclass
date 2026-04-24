@@ -1,9 +1,9 @@
 const db = require("../models/db");
 
-
 exports.listMarks = (req, res) => {
   const officerId = req.session.user.id;
   const degreeId = req.query.degree_id;
+  const search = req.query.search;
 
   let sql = `
     SELECT 
@@ -22,6 +22,11 @@ exports.listMarks = (req, res) => {
 
   const params = [officerId];
 
+  if (search) {
+    sql += " AND (students.name LIKE ? OR modules.name LIKE ?)";
+    params.push(`%${search}%`, `%${search}%`);
+  }
+
   if (degreeId) {
     sql += " AND students.degree_id = ?";
     params.push(degreeId);
@@ -33,10 +38,9 @@ exports.listMarks = (req, res) => {
       return res.send("Database error");
     }
 
-    res.render("marks", { marks: results });
+    res.render("marks", { marks: results, search });
   });
 };
-
 
 exports.showCreateMark = (req, res) => {
   const studentQuery = "SELECT * FROM students";
@@ -52,7 +56,6 @@ exports.showCreateMark = (req, res) => {
     });
   });
 };
-
 
 exports.createMark = (req, res) => {
   const { student_id, module_id, mark, is_resit } = req.body;
@@ -71,7 +74,6 @@ exports.createMark = (req, res) => {
     res.redirect("/marks");
   });
 };
-
 
 exports.showEditMark = (req, res) => {
   const id = req.params.id;
@@ -102,7 +104,6 @@ exports.showEditMark = (req, res) => {
   });
 };
 
-
 exports.updateMark = (req, res) => {
   const id = req.params.id;
 
@@ -123,7 +124,6 @@ exports.updateMark = (req, res) => {
     res.redirect("/marks");
   });
 };
-
 
 exports.deleteMark = (req, res) => {
   const id = req.params.id;

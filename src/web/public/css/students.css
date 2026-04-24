@@ -269,3 +269,36 @@ button:hover {
   margin-top: 20px;
 }
 
+
+.search-bar button,
+.reset-btn {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  display: inline-block;
+
+  
+  
+  text-decoration: none;
+  margin-bottom: 15px;
+}
+
+/* hover effect */
+.search-bar button:hover,
+.reset-btn:hover {
+  border-color: #ec920b;
+  color: #ec920b;
+}
+
+.reset-btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+

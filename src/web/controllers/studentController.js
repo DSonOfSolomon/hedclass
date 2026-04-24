@@ -4,6 +4,7 @@ exports.listStudents = (req, res) => {
   const filter = req.query.filter;
   const degreeId = req.query.degree_id;
   const officerId = req.session.user.id;
+  const search = req.query.search;
 
   let sql = `
     SELECT students.*, degrees.name AS degree_name
@@ -22,6 +23,11 @@ exports.listStudents = (req, res) => {
 
   if (filter === "review") {
     sql += " AND students.needs_review = 1";
+  }
+
+  if (search) {
+    sql += " AND (students.name LIKE ? OR students.student_number LIKE ?)";
+    params.push(`%${search}%`, `%${search}%`);
   }
 
   const degreeSql = `
@@ -43,7 +49,7 @@ exports.listStudents = (req, res) => {
         return res.send("Database error");
       }
 
-      res.render("students", { students, degrees });
+      res.render("students", { students, degrees, search });
     });
   });
 };

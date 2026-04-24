@@ -11,6 +11,21 @@
       <a href="/dashboard" class="btn">← Back to Dashboard</a>
       <a href="/modules/create" class="btn">+ Add Module</a>
 
+      <form method="GET" action="/modules" class="search-bar">
+        <input type="hidden" name="degree_id" value="<%= degreeId %>">
+      
+        <input
+          type="text"
+          name="search"
+          placeholder="Search modules by name or year..."
+          value="<%= typeof search !== 'undefined' ? search : '' %>"
+        >
+      
+        <button type="submit">Search</button>
+      
+        <a href="/modules?degree_id=<%= degreeId %>" class="btn">Reset</a>
+      </form>
+
       <div class="table-wrapper">
         <table>
           <tr>

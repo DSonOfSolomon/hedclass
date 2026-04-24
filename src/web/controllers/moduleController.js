@@ -4,6 +4,7 @@ const db = require("../models/db");
 exports.listModules = (req, res) => {
   const officerId = req.session.user.id;
   const degreeId = req.query.degree_id;
+  const search = req.query.search;
 
   let sql = `
     SELECT modules.*, degrees.name AS degree_name
@@ -20,13 +21,22 @@ exports.listModules = (req, res) => {
     params.push(degreeId);
   }
 
+  if (search) {
+    sql += " AND modules.name LIKE ?";
+    params.push(`%${search}%`);
+  }
+
   db.query(sql, params, (err, results) => {
     if (err) {
       console.error(err);
       return res.send("Database error");
     }
 
-    res.render("modules", { modules: results });
+    res.render("modules", {
+      modules: results,
+      search,
+      degreeId
+    });
   });
 };
 

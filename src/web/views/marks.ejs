@@ -11,6 +11,19 @@
       <a href="/dashboard" class="btn">← Back to Dashboard</a>
       <a href="/marks/create" class="btn">+ Add Mark</a>
 
+
+      <form method="GET" action="/marks" class="search-bar">
+        <input 
+          type="text" 
+          name="search" 
+          placeholder="Search by name or module name... "
+          value="<%= typeof search !== 'undefined' ? search : '' %>"
+        >
+        <button type="submit">Search</button>
+
+        <a href="/marks" class="btn">Reset</a>
+      </form>
+
       <div class="table-wrapper">
         <table>
           <tr>
