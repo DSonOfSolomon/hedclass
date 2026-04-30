@@ -1,10 +1,10 @@
 const db = require("../models/db");
-
+const { getInteger, getTrimmedString } = require("../utils/validation");
 
 exports.listModules = (req, res) => {
   const officerId = req.session.user.id;
-  const degreeId = req.query.degree_id;
-  const search = req.query.search;
+  const degreeId = req.query.degree_id ? getInteger(req.query.degree_id, { min: 1 }) : null;
+  const search = getTrimmedString(req.query.search, { maxLength: 100 });
 
   let sql = `
     SELECT modules.*, degrees.name AS degree_name
@@ -28,8 +28,8 @@ exports.listModules = (req, res) => {
 
   db.query(sql, params, (err, results) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Module list query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     res.render("modules", {
@@ -46,8 +46,8 @@ exports.showCreateModule = (req, res) => {
 
   db.query(sql, (err, degrees) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Module create page degree query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     res.render("create_module", { degrees });
@@ -56,17 +56,24 @@ exports.showCreateModule = (req, res) => {
 
 
 exports.createModule = (req, res) => {
-  const { name, credits, year, degree_id } = req.body;
+  const name = getTrimmedString(req.body.name, { required: true, maxLength: 150 });
+  const credits = getInteger(req.body.credits, { min: 1, max: 120 });
+  const year = getInteger(req.body.year, { min: 1, max: 6 });
+  const degreeId = getInteger(req.body.degree_id, { min: 1 });
+
+  if (!name || credits === null || year === null || !degreeId) {
+    return res.status(400).send("Valid module details are required.");
+  }
 
   const sql = `
     INSERT INTO modules (name, credits, year, degree_id)
     VALUES (?, ?, ?, ?)
     `;
 
-  db.query(sql, [name, credits, year, degree_id], (err) => {
+  db.query(sql, [name, credits, year, degreeId], (err) => {
     if (err) {
-      console.error(err);
-      return res.send("Error creating module");
+      console.error("Create module query failed:", err.message);
+      return res.status(500).send("Error creating module");
     }
 
     res.redirect("/modules");
@@ -75,21 +82,25 @@ exports.createModule = (req, res) => {
 
 
 exports.showEditModule = (req, res) => {
-  const id = req.params.id;
+  const id = getInteger(req.params.id, { min: 1 });
+
+  if (!id) {
+    return res.status(400).send("Invalid module id.");
+  }
 
   const moduleQuery = "SELECT * FROM modules WHERE id = ?";
   const degreeQuery = "SELECT * FROM degrees";
 
   db.query(moduleQuery, [id], (err, moduleResult) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Module lookup query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     db.query(degreeQuery, (err, degrees) => {
       if (err) {
-        console.error(err);
-        return res.send("Database error");
+        console.error("Degree lookup for module edit failed:", err.message);
+        return res.status(500).send("Database error");
       }
 
       res.render("edit_module", {
@@ -102,10 +113,15 @@ exports.showEditModule = (req, res) => {
 
 
 exports.updateModule = (req, res) => {
+    const id = getInteger(req.params.id, { min: 1 });
+    const name = getTrimmedString(req.body.name, { required: true, maxLength: 150 });
+    const credits = getInteger(req.body.credits, { min: 1, max: 120 });
+    const year = getInteger(req.body.year, { min: 1, max: 6 });
+    const degreeId = getInteger(req.body.degree_id, { min: 1 });
 
-    const id = req.params.id;
-
-    const { name, credits, year, degree_id } = req.body;
+    if (!id || !name || credits === null || year === null || !degreeId) {
+      return res.status(400).send("Valid module details are required.");
+    }
 
     const sql = `
     UPDATE modules
@@ -113,11 +129,11 @@ exports.updateModule = (req, res) => {
     WHERE id = ?
     `;
 
-    db.query(sql, [name, credits, year, degree_id, id], (err) => {
+    db.query(sql, [name, credits, year, degreeId, id], (err) => {
 
         if (err) {
-            console.error(err);
-            return res.send("Error updating module");
+            console.error("Update module query failed:", err.message);
+            return res.status(500).send("Error updating module");
         }
 
         res.redirect("/modules");
@@ -128,14 +144,18 @@ exports.updateModule = (req, res) => {
 
 
 exports.deleteModule = (req, res) => {
-  const id = req.params.id;
+  const id = getInteger(req.params.id, { min: 1 });
+
+  if (!id) {
+    return res.status(400).send("Invalid module id.");
+  }
 
   const sql = "DELETE FROM modules WHERE id = ?";
 
   db.query(sql, [id], (err) => {
     if (err) {
-      console.error(err);
-      return res.send("Error deleting module");
+      console.error("Delete module query failed:", err.message);
+      return res.status(500).send("Error deleting module");
     }
 
     res.redirect("/modules");

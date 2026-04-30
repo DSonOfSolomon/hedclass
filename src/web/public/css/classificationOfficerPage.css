@@ -269,11 +269,6 @@ th:last-child {
   cursor: pointer;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  transition: 0.2s ease;
-  cursor: pointer;
-}
 
 .card-link .card:hover {
   transform: translateY(-4px);

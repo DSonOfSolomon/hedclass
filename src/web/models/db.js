@@ -1,28 +1,46 @@
+require("dotenv").config();
 
 const mysql = require("mysql2");
 
-// Create a connection object
-// Stores the credentials needed to connect to the database
-const connection = mysql.createConnection({
-    host: "localhost",     
-    user: "root",          
-    password: "root",      
-    database: "40490439",  
-    port: 8889
+function buildSslConfig() {
+  const sslRequested =
+    process.env.DB_SSL === "true" ||
+    (process.env.NODE_ENV === "production" && process.env.DB_SSL !== "false");
+
+  if (!sslRequested) {
+    return undefined;
+  }
+
+  const ssl = {
+    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false",
+  };
+
+  if (process.env.DB_SSL_CA_BASE64) {
+    ssl.ca = Buffer.from(process.env.DB_SSL_CA_BASE64, "base64").toString("utf8");
+  }
+
+  return ssl;
+}
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  port: Number.parseInt(process.env.DB_PORT || "3306", 10),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: buildSslConfig(),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Attempt to connect to the database
-connection.connect((err) => {
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error("Database connection failed:", err.message);
+    process.exit(1);
+  }
 
-    
-    if (err) {
-        console.error("Database connection failed:", err);
-        return;
-    }
-
-    
-    
+  connection.release();
 });
 
-// Export the connection so other files can use it
-module.exports = connection;
+module.exports = pool;

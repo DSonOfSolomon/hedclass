@@ -18,15 +18,12 @@ exports.isAuthenticated = (req, res, next) => {
 Check if user is an admin
 */
 exports.isAdmin = (req, res, next) => {
-
-    
     if (!req.session.user) {
         return res.redirect("/login");
     }
 
-    
     if (req.session.user.role !== "admin") {
-        return res.send("Access denied: Admins only");
+        return res.status(403).send("Access denied: Admins only");
     }
 
     next();
@@ -43,9 +40,8 @@ exports.isOfficer = (req, res, next) => {
     }
 
     if (req.session.user.role !== "officer") {
-        return res.send("Access denied: Officers only");
+        return res.status(403).send("Access denied: Officers only");
     }
 
     next();
 };
-

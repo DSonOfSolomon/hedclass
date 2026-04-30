@@ -1,10 +1,11 @@
 const db = require("../models/db");
+const { getClassification, getInteger, getTrimmedString } = require("../utils/validation");
 
 exports.listStudents = (req, res) => {
   const filter = req.query.filter;
-  const degreeId = req.query.degree_id;
+  const degreeId = req.query.degree_id ? getInteger(req.query.degree_id, { min: 1 }) : null;
   const officerId = req.session.user.id;
-  const search = req.query.search;
+  const search = getTrimmedString(req.query.search, { maxLength: 100 });
 
   let sql = `
     SELECT students.*, degrees.name AS degree_name
@@ -39,14 +40,14 @@ exports.listStudents = (req, res) => {
 
   db.query(sql, params, (err, students) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Student list query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     db.query(degreeSql, [officerId], (err, degrees) => {
       if (err) {
-        console.error(err);
-        return res.send("Database error");
+        console.error("Student degree filter query failed:", err.message);
+        return res.status(500).send("Database error");
       }
 
       res.render("students", { students, degrees, search });
@@ -59,8 +60,8 @@ exports.showCreateStudent = (req, res) => {
 
   db.query(sql, (err, degrees) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Student create page degree query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     res.render("create_student", { degrees });
@@ -68,17 +69,23 @@ exports.showCreateStudent = (req, res) => {
 };
 
 exports.createStudent = (req, res) => {
-  const { name, student_number, degree_id } = req.body;
+  const name = getTrimmedString(req.body.name, { required: true, maxLength: 150 });
+  const studentNumber = getTrimmedString(req.body.student_number, { required: true, maxLength: 50 });
+  const degreeId = getInteger(req.body.degree_id, { min: 1 });
+
+  if (!name || !studentNumber || !degreeId) {
+    return res.status(400).send("Valid student details are required.");
+  }
 
   const sql = `
     INSERT INTO students (name, student_number, degree_id, classification)
     VALUES (?, ?, ?, ?)
     `;
 
-  db.query(sql, [name, student_number, degree_id, "Pending"], (err) => {
+  db.query(sql, [name, studentNumber, degreeId, "Pending"], (err) => {
     if (err) {
-      console.error(err);
-      return res.send("Error creating student");
+      console.error("Create student query failed:", err.message);
+      return res.status(500).send("Error creating student");
     }
 
     res.redirect("/students");
@@ -86,21 +93,25 @@ exports.createStudent = (req, res) => {
 };
 
 exports.showEditStudent = (req, res) => {
-  const id = req.params.id;
+  const id = getInteger(req.params.id, { min: 1 });
+
+  if (!id) {
+    return res.status(400).send("Invalid student id.");
+  }
 
   const studentQuery = "SELECT * FROM students WHERE id = ?";
   const degreeQuery = "SELECT * FROM degrees";
 
   db.query(studentQuery, [id], (err, studentResult) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Student lookup query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     db.query(degreeQuery, (err, degrees) => {
       if (err) {
-        console.error(err);
-        return res.send("Database error");
+        console.error("Degree lookup for student edit failed:", err.message);
+        return res.status(500).send("Database error");
       }
 
       res.render("edit_student", {
@@ -112,8 +123,14 @@ exports.showEditStudent = (req, res) => {
 };
 
 exports.updateStudent = (req, res) => {
-  const id = req.params.id;
-  const { name, student_number, degree_id } = req.body;
+  const id = getInteger(req.params.id, { min: 1 });
+  const name = getTrimmedString(req.body.name, { required: true, maxLength: 150 });
+  const studentNumber = getTrimmedString(req.body.student_number, { required: true, maxLength: 50 });
+  const degreeId = getInteger(req.body.degree_id, { min: 1 });
+
+  if (!id || !name || !studentNumber || !degreeId) {
+    return res.status(400).send("Valid student details are required.");
+  }
 
   const sql = `
     UPDATE students
@@ -121,10 +138,10 @@ exports.updateStudent = (req, res) => {
     WHERE id = ?
     `;
 
-  db.query(sql, [name, student_number, degree_id, id], (err) => {
+  db.query(sql, [name, studentNumber, degreeId, id], (err) => {
     if (err) {
-      console.error(err);
-      return res.send("Error updating student");
+      console.error("Update student query failed:", err.message);
+      return res.status(500).send("Error updating student");
     }
 
     res.redirect("/students");
@@ -132,14 +149,18 @@ exports.updateStudent = (req, res) => {
 };
 
 exports.deleteStudent = (req, res) => {
-  const id = req.params.id;
+  const id = getInteger(req.params.id, { min: 1 });
+
+  if (!id) {
+    return res.status(400).send("Invalid student id.");
+  }
 
   const sql = "DELETE FROM students WHERE id = ?";
 
   db.query(sql, [id], (err) => {
     if (err) {
-      console.error(err);
-      return res.send("Error deleting student");
+      console.error("Delete student query failed:", err.message);
+      return res.status(500).send("Error deleting student");
     }
 
     res.redirect("/students");
@@ -147,7 +168,11 @@ exports.deleteStudent = (req, res) => {
 };
 
 exports.classifyStudent = (req, res) => {
-  const studentId = req.params.id;
+  const studentId = getInteger(req.params.id, { min: 1 });
+
+  if (!studentId) {
+    return res.status(400).send("Invalid student id.");
+  }
 
   const sql = `
   SELECT marks.mark, marks.is_resit, modules.credits, modules.year,
@@ -161,8 +186,8 @@ exports.classifyStudent = (req, res) => {
 
   db.query(sql, [studentId], (err, results) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Classification lookup query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     if (!results || results.length === 0) {
@@ -295,8 +320,8 @@ exports.classifyStudent = (req, res) => {
       ],
       (err) => {
         if (err) {
-          console.error(err);
-          return res.send("Error updating classification");
+          console.error("Classification update query failed:", err.message);
+          return res.status(500).send("Error updating classification");
         }
 
         res.redirect("/students#student-" + studentId);
@@ -306,14 +331,18 @@ exports.classifyStudent = (req, res) => {
 };
 
 exports.showOverrideForm = (req, res) => {
-  const id = req.params.id;
+  const id = getInteger(req.params.id, { min: 1 });
+
+  if (!id) {
+    return res.status(400).send("Invalid student id.");
+  }
 
   const sql = "SELECT * FROM students WHERE id = ?";
 
   db.query(sql, [id], (err, result) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Override form query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     res.render("override_student", { student: result[0] });
@@ -321,8 +350,16 @@ exports.showOverrideForm = (req, res) => {
 };
 
 exports.saveOverride = (req, res) => {
-  const id = req.params.id;
-  const { override_classification, override_reason } = req.body;
+  const id = getInteger(req.params.id, { min: 1 });
+  const overrideClassification = getClassification(req.body.override_classification);
+  const overrideReason = getTrimmedString(req.body.override_reason, {
+    required: true,
+    maxLength: 1000,
+  });
+
+  if (!id || !overrideClassification || !overrideReason) {
+    return res.status(400).send("A valid override classification and reason are required.");
+  }
 
   const sql = `
     UPDATE students
@@ -330,10 +367,10 @@ exports.saveOverride = (req, res) => {
     WHERE id = ?
   `;
 
-  db.query(sql, [override_classification, override_reason, id], (err) => {
+  db.query(sql, [overrideClassification, overrideReason, id], (err) => {
     if (err) {
-      console.error(err);
-      return res.send("Error saving override");
+      console.error("Override update query failed:", err.message);
+      return res.status(500).send("Error saving override");
     }
 
     res.redirect("/students");
@@ -354,14 +391,21 @@ exports.getStudents = (req, res) => {
   }
 
   db.query(sql, (err, results) => {
-    if (err) throw err;
+    if (err) {
+      console.error("Student export query failed:", err.message);
+      return res.status(500).send("Database error");
+    }
     res.render("students", { students: results });
   });
 };
 
 exports.showProgrammeDetails = (req, res) => {
-  const degreeId = req.params.id;
+  const degreeId = getInteger(req.params.id, { min: 1 });
   const officerId = req.session.user.id;
+
+  if (!degreeId) {
+    return res.status(400).send("Invalid programme id.");
+  }
 
   const programmeInfoSql = `
     SELECT degrees.id, degrees.name
@@ -412,8 +456,8 @@ exports.showProgrammeDetails = (req, res) => {
 
   db.query(programmeInfoSql, [degreeId, officerId], (err, programmeResult) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Programme info query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     if (!programmeResult || programmeResult.length === 0) {
@@ -422,26 +466,26 @@ exports.showProgrammeDetails = (req, res) => {
 
     db.query(studentCountSql, [degreeId, officerId], (err, studentResult) => {
       if (err) {
-        console.error(err);
-        return res.send("Database error");
+        console.error("Programme student count query failed:", err.message);
+        return res.status(500).send("Database error");
       }
 
       db.query(moduleCountSql, [degreeId, officerId], (err, moduleResult) => {
         if (err) {
-          console.error(err);
-          return res.send("Database error");
+          console.error("Programme module count query failed:", err.message);
+          return res.status(500).send("Database error");
         }
 
         db.query(markCountSql, [degreeId, officerId], (err, markResult) => {
           if (err) {
-            console.error(err);
-            return res.send("Database error");
+            console.error("Programme mark count query failed:", err.message);
+            return res.status(500).send("Database error");
           }
 
           db.query(classificationSql, [degreeId, officerId], (err, classifications) => {
             if (err) {
-              console.error(err);
-              return res.send("Database error");
+              console.error("Programme classification query failed:", err.message);
+              return res.status(500).send("Database error");
             }
 
             res.render("programme_details", {

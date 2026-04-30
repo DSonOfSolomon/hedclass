@@ -1,17 +1,15 @@
 
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
-
-
 const authController = require("../controllers/authController");
 const adminController = require("../controllers/adminController");
-const { isAuthenticated, isOfficer, isAdmin } = require("../middleware/authMiddleware");
+const { isOfficer, isAdmin } = require("../middleware/authMiddleware");
+const { loginRateLimiter } = require("../middleware/rateLimiters");
 const exportController = require("../controllers/exportController");
 
 router.get("/login", authController.showLogin);
 
-router.post("/login", authController.login);
+router.post("/login", loginRateLimiter, authController.login);
 
 router.get("/export", isOfficer, exportController.exportCSV);
 

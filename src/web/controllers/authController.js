@@ -1,6 +1,6 @@
 const db = require("../models/db");
-
 const bcrypt = require("bcrypt");
+const { getEmail, getTrimmedString } = require("../utils/validation");
 
 exports.showLogin = (req, res) => {
   if (req.session.user) {
@@ -17,29 +17,45 @@ exports.showLogin = (req, res) => {
  login form submission
 */
 exports.login = (req, res) => {
-  const { email, password } = req.body;
+  const email = getEmail(req.body.email);
+  const password = getTrimmedString(req.body.password, { required: true, maxLength: 255 });
+
+  if (!email || !password) {
+    return res.status(400).send("A valid email and password are required.");
+  }
 
   const sql = "SELECT * FROM users WHERE email = ?";
 
   db.query(sql, [email], async (err, results) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Login query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     if (results.length === 0) {
-      return res.send("User not found");
+      return res.status(401).send("Invalid email or password.");
     }
 
     const user = results[0];
+    let match = false;
 
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.send("Incorrect password");
+    try {
+      match = await bcrypt.compare(password, user.password);
+    } catch (compareError) {
+      console.error("Password comparison failed:", compareError.message);
+      return res.status(500).send("Unable to process login.");
     }
 
-    req.session.user = user;
+    if (!match) {
+      return res.status(401).send("Invalid email or password.");
+    }
+
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
 
     if (user.role === "admin") {
       return res.redirect("/admin/dashboard");
@@ -109,35 +125,38 @@ const classificationQuery = `
 
   db.query(studentCountQuery, [officerId], (err, studentResult) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("Dashboard student query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     db.query(degreeCountQuery, [officerId], (err, degreeResult) => {
       if (err) {
-        console.error(err);
-        return res.send("Database error");
+        console.error("Dashboard degree query failed:", err.message);
+        return res.status(500).send("Database error");
       }
 
       db.query(classificationQuery, [officerId], (err, classResults) => {
         if (err) {
-          console.error(err);
-          return res.send("Database error");
+          console.error("Dashboard classification query failed:", err.message);
+          return res.status(500).send("Database error");
         }
         db.query(moduleCountQuery, [officerId], (err, moduleResult) => {
-          if (err) return res.send("Database error");
+          if (err) {
+            console.error("Dashboard module query failed:", err.message);
+            return res.status(500).send("Database error");
+          }
 
           db.query(programmeQuery, [officerId], (err, programmeResults) => {
             if (err) {
-              return res.send("Database error");
+              console.error("Dashboard programme query failed:", err.message);
+              return res.status(500).send("Database error");
             }
 
             db.query(assignedDegreesQuery, [officerId], (err, assignedResults) => {
               if (err) {
-                return res.send("Database error");
+                console.error("Dashboard assigned degrees query failed:", err.message);
+                return res.status(500).send("Database error");
               }
-
-
 
             res.render("dashboard", {
               user: user,

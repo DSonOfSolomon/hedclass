@@ -1,4 +1,5 @@
 const db = require("../models/db");
+const { getInteger } = require("../utils/validation");
 
 exports.exportCSV = (req, res) => {
   if (!req.session.user) {
@@ -6,10 +7,10 @@ exports.exportCSV = (req, res) => {
   }
 
   const officerId = req.session.user.id;
-  const degreeId = req.query.degree_id;
+  const degreeId = getInteger(req.query.degree_id, { min: 1 });
 
   if (!degreeId) {
-    return res.send("Please select a programme to export.");
+    return res.status(400).send("Please select a valid programme to export.");
   }
 
   const sql = `
@@ -31,8 +32,8 @@ exports.exportCSV = (req, res) => {
 
   db.query(sql, [officerId, degreeId], (err, results) => {
     if (err) {
-      console.error(err);
-      return res.send("Database error");
+      console.error("CSV export query failed:", err.message);
+      return res.status(500).send("Database error");
     }
 
     // CSV header

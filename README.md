@@ -1,164 +1,197 @@
-# HEdClass – Higher Education Classification System
+# HEdClass Portfolio
 
-##  Overview
+Portfolio deployment of a higher education classification management system built with Node.js, Express, EJS, and MySQL.
 
-HEdClass is a web-based system for managing student classifications.
-It allows classification officers to manage students, modules, marks, and generate degree classifications based on academic rules.
+This repository is a portfolio-safe version of a university project. The core features and workflows are preserved, but the app has been prepared for deployment with environment variables, hosted MySQL support, safer session handling, and demo-only database content.
 
----
+## Live Demo
 
-##  Installation & Setup
+Live demo: `TODO`
 
-### 1. Install dependencies
+## Screenshots
 
-```
+Add screenshots here after deployment:
+
+- Login page
+- Officer dashboard
+- Student management
+- Marks and classification views
+- Admin degree and assignment pages
+
+## Tech Stack
+
+- Node.js 20
+- Express
+- EJS
+- MySQL
+- `mysql2`
+- `express-session`
+- `helmet`
+- `express-rate-limit`
+- `bcrypt`
+
+## Features
+
+- Secure login with hashed passwords and role-based access
+- Institutional admin workflow for officers, degrees, and assignments
+- Classification officer workflow for students, modules, marks, and overrides
+- Degree classification calculation using year weighting rules
+- Borderline and review flag support
+- CSV export for programme classification data
+
+## Demo Accounts
+
+- Admin
+  `admin@example.com` / `DemoAdmin123!`
+- Officer
+  `alex.carter@example.com` / `DemoOfficer123!`
+- Second officer
+  `sam.rivera@example.com` / `DemoOfficer123!`
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
 npm install
 ```
 
----
+2. Create a local environment file from the example:
 
-### 2. Set up database
-
-* Create a MySQL database
-* Import and run the seeder file:
-
-```
-src/seeder/data.sql
+```bash
+cp .env.example .env
 ```
 
-This will populate:
+3. Fill in `.env` with your local database credentials:
 
-* users
-* degrees
-* students
-* modules
-* marks
-
----
-
-### 3. Run the application
-
-```
-node src/web/app.js
+```env
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=hedclass_app
+DB_PASSWORD=change-me
+DB_NAME=hedclass_portfolio
+SESSION_SECRET=replace-with-a-long-random-secret
+NODE_ENV=development
+PORT=3000
+DB_SSL=false
 ```
 
----
+4. Create the database and import the schema and demo data:
 
-### 4. Access the system
-
+```bash
+mysql -u your_user -p your_database_name < database/schema.sql
+mysql -u your_user -p your_database_name < database/seed.sql
 ```
+
+5. Start the app:
+
+```bash
+npm start
+```
+
+6. Open:
+
+```text
 http://localhost:3000
 ```
 
----
+## Environment Variables
 
-##  Login Credentials
+Required:
 
-### Admin
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `SESSION_SECRET`
+- `NODE_ENV`
+- `PORT`
 
-* Email: admin@hedclass.com
-* Password: admin123
+Optional for hosted MySQL:
 
-### Classification Officer 1
+- `DB_SSL=true`
+- `DB_SSL_CA_BASE64`
+- `DB_SSL_REJECT_UNAUTHORIZED=true`
 
-* Email: markspencer@mail.com
-* Password: markspenser123
+## Database Setup
 
-### Classification Officer 2
+The SQL files used for setup are in [`database/schema.sql`](/Users/dannycanary/40490439/database/schema.sql) and [`database/seed.sql`](/Users/dannycanary/40490439/database/seed.sql).
 
-* Email: johnjoe@mail.com
-* Password: JohnJoe123
+- `schema.sql` creates the tables and constraints
+- `seed.sql` loads fake demo accounts, degrees, students, modules, and marks
 
----
+No real user data or coursework submission data is included.
 
-##  Features
+## Deployment: Render + Aiven MySQL
 
-### Authentication
+### Aiven MySQL
 
-* Secure login using bcrypt
-* Role-based access (Institutional Admin / Classification Officer)
+1. Create a MySQL service in Aiven.
+2. Create a database for the app.
+3. Run:
 
----
-
-### Admin Features
-
-* Manage classification officers
-* Manage degrees
-* Assign officers to programmes
-* Manage Assignments
-
----
-
-### Officer Features
-
-* View dashboard
-* Manage students (CRUD)
-* Manage modules (CRUD)
-* Manage marks (CRUD)
-* Run classification
-
----
-
-### Classification Logic
-
-* Weighted average:
-
-  * Year 2 → 30%
-  * Year 3 → 70%
-* Resit marks capped at 40
-* Failed modules → Not eligible
-* Borderline cases flagged for review
-
----
-
-### Dashboard
-
-* Student count
-* Programme count
-* Module  count 
-* Programme summary
-* Classification distribution (chart + table)
-
----
-
-##  Seeder
-
-The system includes an idempotent SQL seeder:
-
-```
-src/seeder/data.sql
+```bash
+mysql --host your-aiven-host --port your-aiven-port --user your-aiven-user --password your-aiven-database < database/schema.sql
+mysql --host your-aiven-host --port your-aiven-port --user your-aiven-user --password your-aiven-database < database/seed.sql
 ```
 
-* Resets database
-* Populates full dataset
-* Ensures consistent testing
+4. If Aiven requires certificate-based verification, convert the CA certificate to base64 and store it in `DB_SSL_CA_BASE64`.
 
----
+### Render Web Service
 
-##  Project Structure
+1. Push this repository to GitHub.
+2. Create a new Render Web Service from the repository.
+3. Set the build command to:
 
+```bash
+npm install
 ```
+
+4. Set the start command to:
+
+```bash
+npm start
+```
+
+5. Add these environment variables in Render:
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `SESSION_SECRET`
+- `NODE_ENV=production`
+- `PORT`
+- `DB_SSL=true`
+- `DB_SSL_CA_BASE64` if your Aiven setup needs an explicit CA value
+
+## Project Structure
+
+```text
 40490439/
+├── database/
+│   ├── schema.sql
+│   └── seed.sql
 ├── src/
-│   ├── seeder/      
-│   ├── web/ 
-│   
-├── docs/
-│   └── 40490439.pdf 
-│ 
-├── gitlog.txt
-├── README.md
+│   └── web/
+│       ├── controllers/
+│       ├── middleware/
+│       ├── models/
+│       ├── public/
+│       ├── routes/
+│       ├── utils/
+│       └── views/
+├── .env.example
 ├── .gitignore
 ├── package.json
-└── package-lock.json
+├── package-lock.json
+└── README.md
 ```
 
----
+## Notes
 
-##  Notes
-
-* Passwords are stored securely using bcrypt hashing
-* System designed for demonstration and academic use
-
----
-
+- This app is prepared for a portfolio deployment target, not large-scale production traffic.
+- Sessions still use the default in-memory session store, which is acceptable for a single-instance demo but not for a multi-instance production system.
+- The repository intentionally includes demo-only credentials and fake data for review and testing.
