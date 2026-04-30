@@ -8,9 +8,9 @@ TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO users (id, name, email, password, role) VALUES
-  (1, 'Portfolio Admin', 'admin@example.com', '$2b$10$FTV5A645MFUycTAjFVWH2.W745vmVxKZQgHqljiONY/qf9SS1oDhC', 'admin'),
-  (2, 'Alex Carter', 'alex.carter@example.com', '$2b$10$jRB/g8RlyR85iBXTM.nYEu9RffliRizV4.sJeJuL68DvWYO34h1aa', 'officer'),
-  (3, 'Sam Rivera', 'sam.rivera@example.com', '$2b$10$jRB/g8RlyR85iBXTM.nYEu9RffliRizV4.sJeJuL68DvWYO34h1aa', 'officer');
+  (1, 'Portfolio Admin', 'admin@hed.com', '$2b$10$i7PZgV/18SGwtg95OHdxzOhCG4jQ.Hsh4R8rsuZlyXfUhegtAERdm', 'admin'),
+  (2, 'Alex Carter', 'alex.carter@hed.com', '$2b$10$wo/aeaWytFIVUKlaPcWhwur9/zAzg7cuo01RBkn.x4LxJhRWFi3aG', 'officer'),
+  (3, 'Sam Rivera', 'sam.rivera@hed.com', '$2b$10$06jFcKuc.F6WptJ8DHQpSOvVG3d.YbLv.MH3zW/KD0sIsXlOJXZeC', 'officer');
 
 INSERT INTO degrees (id, name, description, year2_weight, year3_weight) VALUES
   (1, 'BSc Computer Science', 'Portfolio demo degree for honours classification workflows.', 30, 70),

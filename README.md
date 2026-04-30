@@ -42,11 +42,11 @@ Add screenshots here after deployment:
 ## Demo Accounts
 
 - Admin
-  `admin@example.com` / `DemoAdmin123!`
+  `admin@hed.com` / `Admin123!`
 - Officer
-  `alex.carter@example.com` / `DemoOfficer123!`
+  `alex.carter@hed.com` / `Acarter123!`
 - Second officer
-  `sam.rivera@example.com` / `DemoOfficer123!`
+  `sam.rivera@hed.com` / `Arivera123!`
 
 ## Local Setup
 
