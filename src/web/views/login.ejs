@@ -17,9 +17,10 @@
 
       <div class="login-page-form">
         <h2>Login to HEdClass</h2>
+        <%- include("partials/flash") %>
         <form action="/login" method="POST">
           <label>Email:</label><br />
-          <input type="email" name="email" required /><br /><br />
+          <input type="email" name="email" value="<%= formData?.email || '' %>" required /><br /><br />
 
           <label>Password:</label><br />
           <input type="password" name="password" required /><br /><br />

@@ -7,6 +7,7 @@
 
   <body>
     <div class="student-container">
+      <%- include("partials/flash") %>
       <h1>Student Cohort</h1>
 
       <a href="/dashboard" class="btn">← Back to Dashboard</a>
@@ -68,15 +69,21 @@
             <td><%= student.override_reason || "-" %></td>
 
             <td>
-              <%= student.year2_average ? student.year2_average.toFixed(2) : "-"
+              <%= student.year2_average !== null && typeof student.year2_average !== "undefined"
+                ? Number(student.year2_average).toFixed(2)
+                : "-"
               %>
             </td>
             <td>
-              <%= student.year3_average ? student.year3_average.toFixed(2) : "-"
+              <%= student.year3_average !== null && typeof student.year3_average !== "undefined"
+                ? Number(student.year3_average).toFixed(2)
+                : "-"
               %>
             </td>
             <td>
-              <%= student.final_average ? student.final_average.toFixed(2) : "-"
+              <%= student.final_average !== null && typeof student.final_average !== "undefined"
+                ? Number(student.final_average).toFixed(2)
+                : "-"
               %>
             </td>
 

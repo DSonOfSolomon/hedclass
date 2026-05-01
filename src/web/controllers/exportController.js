@@ -1,4 +1,6 @@
 const db = require("../models/db");
+const { redirectWithFlash } = require("../middleware/flash");
+const { renderErrorPage } = require("../utils/rendering");
 const { getInteger } = require("../utils/validation");
 
 exports.exportCSV = (req, res) => {
@@ -10,7 +12,7 @@ exports.exportCSV = (req, res) => {
   const degreeId = getInteger(req.query.degree_id, { min: 1 });
 
   if (!degreeId) {
-    return res.status(400).send("Please select a valid programme to export.");
+    return redirectWithFlash(req, res, "/dashboard", "error", "Please select a valid programme to export.");
   }
 
   const sql = `
@@ -33,7 +35,7 @@ exports.exportCSV = (req, res) => {
   db.query(sql, [officerId, degreeId], (err, results) => {
     if (err) {
       console.error("CSV export query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Export Error", "Unable to export this programme right now.");
     }
 
     // CSV header

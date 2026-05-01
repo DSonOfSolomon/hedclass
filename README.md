@@ -1,22 +1,26 @@
-# HEdClass Portfolio
+# HEdClass
 
-Portfolio deployment of a higher education classification management system built with Node.js, Express, EJS, and MySQL.
+A higher education classification management system built with Node.js, Express, EJS, and MySQL.
 
-This repository is a portfolio-safe version of a university project. The core features and workflows are preserved, but the app has been prepared for deployment with environment variables, hosted MySQL support, safer session handling, and demo-only database content.
+This repository contains a production-ready version of a university classification system. The core features and workflows are preserved, with deployment-oriented improvements such as environment variables, hosted MySQL support, safer session handling, and demo-only database content.
+
+The focus of this version is not just CRUD functionality. It also shows production-minded improvements around configuration management, hosted database integration, session security, automated verification, and deployment workflow.
 
 ## Live Demo
 
-Live demo: `TODO`
+Live demo: [https://hedclass.onrender.com](https://hedclass.onrender.com)
 
 ## Screenshots
 
-Add screenshots here after deployment:
+Screenshots can be added here to support the live demo:
 
 - Login page
 - Officer dashboard
 - Student management
 - Marks and classification views
 - Admin degree and assignment pages
+
+Current live deployment: [https://hedclass.onrender.com](https://hedclass.onrender.com)
 
 ## Tech Stack
 
@@ -26,9 +30,43 @@ Add screenshots here after deployment:
 - MySQL
 - `mysql2`
 - `express-session`
+- `express-mysql-session`
 - `helmet`
 - `express-rate-limit`
 - `bcrypt`
+- GitHub Actions
+
+## Architecture Overview
+
+- Express routes map to focused controllers for auth, admin, students, modules, marks, and exports
+- EJS is used for server-rendered views and form workflows
+- MySQL stores users, programme data, marks, and session records
+- Session management uses `express-session` with a MySQL-backed store for deployed environments
+- Classification logic is isolated in a reusable utility for easier testing
+
+## Domain Logic
+
+This project goes beyond basic CRUD by implementing domain-specific academic classification rules:
+
+- degree classifications are calculated from weighted year 2 and year 3 averages
+- resit marks are capped before the final calculation
+- failed modules and incomplete credit totals block honours classification
+- borderline and policy-sensitive outcomes are flagged for manual review
+- officers can apply manual overrides with a recorded reason
+
+These rules are part of what makes the project more representative of real business logic rather than a generic admin dashboard.
+
+## Productionization Highlights
+
+- Environment variables are used for database credentials, session secrets, deployment mode, and port binding
+- The app is configured for hosted MySQL providers such as Aiven, including SSL support
+- Sessions are stored in MySQL for deployed environments instead of relying on the default in-memory store
+- Security headers are enabled with `helmet`
+- Login attempts are rate-limited
+- Passwords are stored as bcrypt hashes
+- Validation is applied to common form inputs before database writes
+- Friendly flash messages and dedicated error pages replace many raw text failure responses
+- CI runs linting and automated tests on GitHub Actions
 
 ## Features
 
@@ -38,6 +76,9 @@ Add screenshots here after deployment:
 - Degree classification calculation using year weighting rules
 - Borderline and review flag support
 - CSV export for programme classification data
+- Friendly flash messages and dedicated error pages for common failures
+- Automated tests for auth, access control, and classification rules
+- GitHub Actions CI for install, lint, and test verification
 
 ## Demo Accounts
 
@@ -69,7 +110,7 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=hedclass_app
 DB_PASSWORD=change-me
-DB_NAME=hedclass_portfolio
+DB_NAME=hedclass
 SESSION_SECRET=replace-with-a-long-random-secret
 NODE_ENV=development
 PORT=3000
@@ -87,6 +128,12 @@ mysql -u your_user -p your_database_name < database/seed.sql
 
 ```bash
 npm start
+```
+
+To run the automated checks locally:
+
+```bash
+npm run check
 ```
 
 6. Open:
@@ -167,6 +214,36 @@ npm start
 - `DB_SSL=true`
 - `DB_SSL_CA_BASE64` if your Aiven setup needs an explicit CA value
 
+This split deployment was chosen intentionally:
+
+- Render is used for the Node.js web application
+- Aiven is used for the hosted MySQL database
+- application secrets stay in environment variables rather than source code
+- the app can be rebuilt and redeployed independently of the database service
+
+## Technical Decisions
+
+- `EJS` was kept instead of rewriting to a frontend SPA because the goal was to productionize the existing project safely, not replace its rendering model.
+- `express-mysql-session` was added so deployed sessions survive restarts and behave more like a real hosted app.
+- Classification logic was extracted into a standalone utility so the core rules can be tested independently of Express routes.
+- The project uses server-rendered flash messages and an error page rather than introducing a larger frontend state system for simple form workflows.
+- Hosted MySQL SSL configuration is environment-driven so the same codebase works locally and on Aiven with minimal branching.
+- GitHub Actions was added to verify install, lint, and test steps automatically on pushes and pull requests.
+
+## Testing
+
+The project includes:
+
+- unit tests for classification rule calculation
+- integration tests for login, access control, and key student workflow routes
+- ESLint-based static checks
+
+Run them with:
+
+```bash
+npm run check
+```
+
 ## Project Structure
 
 ```text
@@ -192,6 +269,7 @@ npm start
 
 ## Notes
 
-- This app is prepared for a portfolio deployment target, not large-scale production traffic.
-- Sessions still use the default in-memory session store, which is acceptable for a single-instance demo but not for a multi-instance production system.
+- This app is prepared for a hosted deployment target, not large-scale production traffic.
+- Production sessions are stored in MySQL. Tests use an in-memory session store to keep the suite isolated.
 - The repository intentionally includes demo-only credentials and fake data for review and testing.
+- Screenshots can be added later to strengthen the documentation further.

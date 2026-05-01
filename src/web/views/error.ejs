@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        background: linear-gradient(160deg, #f6efe6 0%, #e8f0ef 100%);
+        color: #1f2937;
+      }
+
+      .error-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px;
+      }
+
+      .error-card {
+        max-width: 640px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(31, 41, 55, 0.08);
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      }
+
+      .error-status {
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #9a3412;
+        margin-bottom: 12px;
+      }
+
+      .error-title {
+        margin: 0 0 12px;
+        font-size: 40px;
+      }
+
+      .error-message {
+        margin: 0 0 24px;
+        line-height: 1.6;
+      }
+
+      .error-link {
+        display: inline-block;
+        padding: 10px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        background: #0f766e;
+        color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="error-shell">
+      <section class="error-card">
+        <div class="error-status">Error <%= status %></div>
+        <h1 class="error-title"><%= title %></h1>
+        <p class="error-message"><%= message %></p>
+        <a class="error-link" href="/login">Return to Login</a>
+      </section>
+    </main>
+  </body>
+</html>

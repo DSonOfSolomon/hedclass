@@ -18,12 +18,13 @@ exports.isAuthenticated = (req, res, next) => {
 Check if user is an admin
 */
 exports.isAdmin = (req, res, next) => {
+    const { renderErrorPage } = require("../utils/rendering");
     if (!req.session.user) {
         return res.redirect("/login");
     }
 
     if (req.session.user.role !== "admin") {
-        return res.status(403).send("Access denied: Admins only");
+        return renderErrorPage(res, 403, "Access Denied", "This page is available to admins only.");
     }
 
     next();
@@ -34,13 +35,14 @@ exports.isAdmin = (req, res, next) => {
 Check if user is a classification officer
 */
 exports.isOfficer = (req, res, next) => {
+    const { renderErrorPage } = require("../utils/rendering");
 
     if (!req.session.user) {
         return res.redirect("/login");
     }
 
     if (req.session.user.role !== "officer") {
-        return res.status(403).send("Access denied: Officers only");
+        return renderErrorPage(res, 403, "Access Denied", "This page is available to classification officers only.");
     }
 
     next();

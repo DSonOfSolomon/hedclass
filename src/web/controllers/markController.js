@@ -1,4 +1,6 @@
 const db = require("../models/db");
+const { redirectWithFlash } = require("../middleware/flash");
+const { renderErrorPage } = require("../utils/rendering");
 const { getCheckboxValue, getInteger, getTrimmedString } = require("../utils/validation");
 
 exports.listMarks = (req, res) => {
@@ -36,7 +38,7 @@ exports.listMarks = (req, res) => {
   db.query(sql, params, (err, results) => {
     if (err) {
       console.error("Mark list query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Mark Error", "Unable to load marks.");
     }
 
     res.render("marks", { marks: results, search });
@@ -50,13 +52,13 @@ exports.showCreateMark = (req, res) => {
   db.query(studentQuery, (err, students) => {
     if (err) {
       console.error("Student list for mark create failed:", err.message);
-      return res.status(500).send("Error loading students");
+      return renderErrorPage(res, 500, "Mark Error", "Unable to load students.");
     }
 
     db.query(moduleQuery, (err, modules) => {
       if (err) {
         console.error("Module list for mark create failed:", err.message);
-        return res.status(500).send("Error loading modules");
+        return renderErrorPage(res, 500, "Mark Error", "Unable to load modules.");
       }
 
       res.render("create_mark", { students, modules });
@@ -71,7 +73,7 @@ exports.createMark = (req, res) => {
   const isResit = getCheckboxValue(req.body.is_resit);
 
   if (!studentId || !moduleId || mark === null) {
-    return res.status(400).send("Valid mark details are required.");
+    return redirectWithFlash(req, res, "/marks/create", "error", "Valid mark details are required.");
   }
 
   const sql = `
@@ -82,10 +84,10 @@ exports.createMark = (req, res) => {
   db.query(sql, [studentId, moduleId, mark, isResit ? 1 : 0], (err) => {
     if (err) {
       console.error("Create mark query failed:", err.message);
-      return res.status(500).send("Error saving mark");
+      return renderErrorPage(res, 500, "Mark Error", "Unable to save mark.");
     }
 
-    res.redirect("/marks");
+    redirectWithFlash(req, res, "/marks", "success", "Mark created.");
   });
 };
 
@@ -93,7 +95,7 @@ exports.showEditMark = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid mark id.");
+    return redirectWithFlash(req, res, "/marks", "error", "Invalid mark id.");
   }
 
   const markQuery = "SELECT * FROM marks WHERE id = ?";
@@ -103,19 +105,23 @@ exports.showEditMark = (req, res) => {
   db.query(markQuery, [id], (err, markResult) => {
     if (err) {
       console.error("Mark lookup query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Mark Error", "Unable to load mark details.");
     }
 
     db.query(studentQuery, (err, students) => {
       if (err) {
         console.error("Student list for mark edit failed:", err.message);
-        return res.status(500).send("Error loading students");
+        return renderErrorPage(res, 500, "Mark Error", "Unable to load students.");
       }
 
       db.query(moduleQuery, (err, modules) => {
         if (err) {
           console.error("Module list for mark edit failed:", err.message);
-          return res.status(500).send("Error loading modules");
+          return renderErrorPage(res, 500, "Mark Error", "Unable to load modules.");
+        }
+
+        if (!markResult || markResult.length === 0) {
+          return renderErrorPage(res, 404, "Mark Not Found", "The requested mark could not be found.");
         }
 
         res.render("edit_mark", {
@@ -136,7 +142,7 @@ exports.updateMark = (req, res) => {
   const isResit = getCheckboxValue(req.body.is_resit);
 
   if (!id || !studentId || !moduleId || mark === null) {
-    return res.status(400).send("Valid mark details are required.");
+    return redirectWithFlash(req, res, `/marks/edit/${req.params.id}`, "error", "Valid mark details are required.");
   }
 
   const sql = `
@@ -148,10 +154,10 @@ exports.updateMark = (req, res) => {
   db.query(sql, [studentId, moduleId, mark, isResit ? 1 : 0, id], (err) => {
     if (err) {
       console.error("Update mark query failed:", err.message);
-      return res.status(500).send("Error updating mark");
+      return renderErrorPage(res, 500, "Mark Error", "Unable to update mark.");
     }
 
-    res.redirect("/marks");
+    redirectWithFlash(req, res, "/marks", "success", "Mark updated.");
   });
 };
 
@@ -159,7 +165,7 @@ exports.deleteMark = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid mark id.");
+    return redirectWithFlash(req, res, "/marks", "error", "Invalid mark id.");
   }
 
   const sql = "DELETE FROM marks WHERE id = ?";
@@ -167,9 +173,9 @@ exports.deleteMark = (req, res) => {
   db.query(sql, [id], (err) => {
     if (err) {
       console.error("Delete mark query failed:", err.message);
-      return res.status(500).send("Error deleting mark");
+      return renderErrorPage(res, 500, "Mark Error", "Unable to delete mark.");
     }
 
-    res.redirect("/marks");
+    redirectWithFlash(req, res, "/marks", "success", "Mark deleted.");
   });
 };

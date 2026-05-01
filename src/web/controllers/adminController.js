@@ -1,5 +1,7 @@
 const db = require("../models/db");
 const bcrypt = require("bcrypt");
+const { redirectWithFlash } = require("../middleware/flash");
+const { renderErrorPage } = require("../utils/rendering");
 const { getEmail, getInteger, getTrimmedString } = require("../utils/validation");
 
 exports.listOfficers = (req, res) => {
@@ -8,7 +10,7 @@ exports.listOfficers = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Officer list query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Officer Error", "Unable to load classification officers.");
     }
 
     res.render("admin_officers", { officers: results });
@@ -25,7 +27,13 @@ exports.createOfficer = async (req, res) => {
   const password = getTrimmedString(req.body.password, { required: true, maxLength: 255 });
 
   if (!name || !email || !password || password.length < 8) {
-    return res.status(400).send("Valid officer details are required. Passwords must be at least 8 characters.");
+    return redirectWithFlash(
+      req,
+      res,
+      "/admin/officers/create",
+      "error",
+      "Valid officer details are required. Passwords must be at least 8 characters."
+    );
   }
 
   let hashedPassword;
@@ -34,7 +42,7 @@ exports.createOfficer = async (req, res) => {
     hashedPassword = await bcrypt.hash(password, 10);
   } catch (err) {
     console.error("Password hashing failed:", err.message);
-    return res.status(500).send("Unable to create officer");
+    return renderErrorPage(res, 500, "Officer Error", "Unable to create officer right now.");
   }
 
   const sql = `
@@ -45,10 +53,10 @@ exports.createOfficer = async (req, res) => {
   db.query(sql, [name, email, hashedPassword], (err) => {
     if (err) {
       console.error("Create officer query failed:", err.message);
-      return res.status(500).send("Error creating officer");
+      return redirectWithFlash(req, res, "/admin/officers/create", "error", "Unable to create officer.");
     }
 
-    res.redirect("/admin/officers");
+    redirectWithFlash(req, res, "/admin/officers", "success", "Classification officer created.");
   });
 };
 
@@ -56,7 +64,7 @@ exports.deleteOfficer = (req, res) => {
   const officerId = getInteger(req.params.id, { min: 1 });
 
   if (!officerId) {
-    return res.status(400).send("Invalid officer id.");
+    return redirectWithFlash(req, res, "/admin/officers", "error", "Invalid officer id.");
   }
 
   const sql = "DELETE FROM users WHERE id = ?";
@@ -64,10 +72,10 @@ exports.deleteOfficer = (req, res) => {
   db.query(sql, [officerId], (err) => {
     if (err) {
       console.error("Delete officer query failed:", err.message);
-      return res.status(500).send("Error deleting officer");
+      return renderErrorPage(res, 500, "Officer Error", "Unable to delete officer.");
     }
 
-    res.redirect("/admin/officers");
+    redirectWithFlash(req, res, "/admin/officers", "success", "Classification officer deleted.");
   });
 };
 
@@ -84,13 +92,13 @@ exports.showAssignPage = (req, res) => {
   db.query(officersQuery, (err, officers) => {
     if (err) {
       console.error("Assign page officers query failed:", err.message);
-      return res.status(500).send("Error loading officers");
+      return renderErrorPage(res, 500, "Assignment Error", "Unable to load officers.");
     }
 
     db.query(degreesQuery, (err, degrees) => {
       if (err) {
         console.error("Assign page degrees query failed:", err.message);
-        return res.status(500).send("Error loading degrees");
+        return renderErrorPage(res, 500, "Assignment Error", "Unable to load degrees.");
       }
 
       res.render("assign_officer", {
@@ -110,7 +118,7 @@ exports.assignOfficer = (req, res) => {
   const degreeId = getInteger(req.body.degree_id, { min: 1 });
 
   if (!officerId || !degreeId) {
-    return res.status(400).send("A valid officer and degree are required.");
+    return redirectWithFlash(req, res, "/admin/assign", "error", "A valid officer and degree are required.");
   }
 
   // First check if this assignment already exists
@@ -122,12 +130,18 @@ exports.assignOfficer = (req, res) => {
   db.query(checkSql, [degreeId], (err, results) => {
     if (err) {
       console.error("Assignment check query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Assignment Error", "Unable to validate the assignment.");
     }
 
     // If assignment already exists, do not insert again
     if (results.length > 0) {
-      return res.send("This degree is already assigned to another officer.");
+      return redirectWithFlash(
+        req,
+        res,
+        "/admin/assign",
+        "error",
+        "This degree is already assigned to another officer."
+      );
     }
 
     // Insert new assignment
@@ -139,10 +153,10 @@ exports.assignOfficer = (req, res) => {
     db.query(insertSql, [officerId, degreeId], (err) => {
       if (err) {
         console.error("Assignment insert query failed:", err.message);
-        return res.status(500).send("Error assigning officer");
+        return renderErrorPage(res, 500, "Assignment Error", "Unable to assign officer.");
       }
 
-      res.redirect("/admin/assign");
+      redirectWithFlash(req, res, "/admin/assign", "success", "Officer assigned to degree.");
     });
   });
 };
@@ -162,11 +176,11 @@ exports.showEditOfficer = (req, res) => {
     (err, result) => {
       if (err) {
         console.error("Officer lookup query failed:", err.message);
-        return res.status(500).send("Error");
+        return renderErrorPage(res, 500, "Officer Error", "Unable to load officer details.");
       }
 
       if (!result || result.length === 0) {
-        return res.send("Officer not found");
+        return renderErrorPage(res, 404, "Officer Not Found", "The requested officer could not be found.");
       }
 
       res.render("edit_officer", { officer: result[0] });
@@ -180,7 +194,7 @@ exports.updateOfficer = (req, res) => {
   const email = getEmail(req.body.email);
 
   if (!id || !name || !email) {
-    return res.status(400).send("Valid officer details are required.");
+    return redirectWithFlash(req, res, `/admin/officers/edit/${req.params.id}`, "error", "Valid officer details are required.");
   }
 
   db.query(
@@ -189,10 +203,10 @@ exports.updateOfficer = (req, res) => {
     (err) => {
       if (err) {
         console.error("Officer update query failed:", err.message);
-        return res.status(500).send("Error");
+        return renderErrorPage(res, 500, "Officer Error", "Unable to update officer details.");
       }
 
-      res.redirect("/admin/officers");
+      redirectWithFlash(req, res, "/admin/officers", "success", "Officer details updated.");
     }
   );
 };
@@ -210,7 +224,7 @@ exports.listAssignments = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Assignments query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Assignment Error", "Unable to load assignments.");
     }
 
     res.render("manage_assignments", { assignments: results });
@@ -221,15 +235,15 @@ exports.unassignOfficer = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid assignment id.");
+    return redirectWithFlash(req, res, "/admin/assignments", "error", "Invalid assignment id.");
   }
 
   db.query("DELETE FROM officer_degrees WHERE id = ?", [id], (err) => {
     if (err) {
       console.error("Unassign query failed:", err.message);
-      return res.status(500).send("Error unassigning");
+      return renderErrorPage(res, 500, "Assignment Error", "Unable to remove assignment.");
     }
 
-    res.redirect("/admin/assignments");
+    redirectWithFlash(req, res, "/admin/assignments", "success", "Assignment removed.");
   });
 };

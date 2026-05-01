@@ -1,0 +1,14 @@
+<% if (flash || typeof error !== "undefined") { %>
+  <div
+    style="
+      margin: 16px 0;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid <%= (flash?.type || (typeof error !== 'undefined' ? 'error' : 'info')) === 'success' ? '#15803d' : '#b91c1c' %>;
+      background: <%= (flash?.type || (typeof error !== 'undefined' ? 'error' : 'info')) === 'success' ? '#f0fdf4' : '#fef2f2' %>;
+      color: <%= (flash?.type || (typeof error !== 'undefined' ? 'error' : 'info')) === 'success' ? '#166534' : '#991b1b' %>;
+    "
+  >
+    <%= flash?.message || error %>
+  </div>
+<% } %>

@@ -1,4 +1,6 @@
 const db = require("../models/db");
+const { redirectWithFlash } = require("../middleware/flash");
+const { renderErrorPage } = require("../utils/rendering");
 const { getInteger, getTrimmedString } = require("../utils/validation");
 
 exports.listModules = (req, res) => {
@@ -29,7 +31,7 @@ exports.listModules = (req, res) => {
   db.query(sql, params, (err, results) => {
     if (err) {
       console.error("Module list query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Module Error", "Unable to load modules.");
     }
 
     res.render("modules", {
@@ -47,7 +49,7 @@ exports.showCreateModule = (req, res) => {
   db.query(sql, (err, degrees) => {
     if (err) {
       console.error("Module create page degree query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Module Error", "Unable to load programme options.");
     }
 
     res.render("create_module", { degrees });
@@ -62,7 +64,7 @@ exports.createModule = (req, res) => {
   const degreeId = getInteger(req.body.degree_id, { min: 1 });
 
   if (!name || credits === null || year === null || !degreeId) {
-    return res.status(400).send("Valid module details are required.");
+    return redirectWithFlash(req, res, "/modules/create", "error", "Valid module details are required.");
   }
 
   const sql = `
@@ -73,10 +75,10 @@ exports.createModule = (req, res) => {
   db.query(sql, [name, credits, year, degreeId], (err) => {
     if (err) {
       console.error("Create module query failed:", err.message);
-      return res.status(500).send("Error creating module");
+      return renderErrorPage(res, 500, "Module Error", "Unable to create module.");
     }
 
-    res.redirect("/modules");
+    redirectWithFlash(req, res, "/modules", "success", "Module created.");
   });
 };
 
@@ -85,7 +87,7 @@ exports.showEditModule = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid module id.");
+    return redirectWithFlash(req, res, "/modules", "error", "Invalid module id.");
   }
 
   const moduleQuery = "SELECT * FROM modules WHERE id = ?";
@@ -94,13 +96,17 @@ exports.showEditModule = (req, res) => {
   db.query(moduleQuery, [id], (err, moduleResult) => {
     if (err) {
       console.error("Module lookup query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Module Error", "Unable to load module details.");
     }
 
     db.query(degreeQuery, (err, degrees) => {
       if (err) {
         console.error("Degree lookup for module edit failed:", err.message);
-        return res.status(500).send("Database error");
+        return renderErrorPage(res, 500, "Module Error", "Unable to load programme options.");
+      }
+
+      if (!moduleResult || moduleResult.length === 0) {
+        return renderErrorPage(res, 404, "Module Not Found", "The requested module could not be found.");
       }
 
       res.render("edit_module", {
@@ -120,7 +126,7 @@ exports.updateModule = (req, res) => {
     const degreeId = getInteger(req.body.degree_id, { min: 1 });
 
     if (!id || !name || credits === null || year === null || !degreeId) {
-      return res.status(400).send("Valid module details are required.");
+      return redirectWithFlash(req, res, `/modules/edit/${req.params.id}`, "error", "Valid module details are required.");
     }
 
     const sql = `
@@ -133,10 +139,10 @@ exports.updateModule = (req, res) => {
 
         if (err) {
             console.error("Update module query failed:", err.message);
-            return res.status(500).send("Error updating module");
+            return renderErrorPage(res, 500, "Module Error", "Unable to update module.");
         }
 
-        res.redirect("/modules");
+        redirectWithFlash(req, res, "/modules", "success", "Module updated.");
 
     });
 
@@ -147,7 +153,7 @@ exports.deleteModule = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid module id.");
+    return redirectWithFlash(req, res, "/modules", "error", "Invalid module id.");
   }
 
   const sql = "DELETE FROM modules WHERE id = ?";
@@ -155,9 +161,9 @@ exports.deleteModule = (req, res) => {
   db.query(sql, [id], (err) => {
     if (err) {
       console.error("Delete module query failed:", err.message);
-      return res.status(500).send("Error deleting module");
+      return renderErrorPage(res, 500, "Module Error", "Unable to delete module.");
     }
 
-    res.redirect("/modules");
+    redirectWithFlash(req, res, "/modules", "success", "Module deleted.");
   });
 };

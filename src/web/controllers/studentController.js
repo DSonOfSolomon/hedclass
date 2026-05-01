@@ -1,4 +1,7 @@
 const db = require("../models/db");
+const { redirectWithFlash } = require("../middleware/flash");
+const { renderErrorPage } = require("../utils/rendering");
+const { calculateClassification } = require("../utils/classification");
 const { getClassification, getInteger, getTrimmedString } = require("../utils/validation");
 
 exports.listStudents = (req, res) => {
@@ -41,13 +44,13 @@ exports.listStudents = (req, res) => {
   db.query(sql, params, (err, students) => {
     if (err) {
       console.error("Student list query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Student Error", "Unable to load students.");
     }
 
     db.query(degreeSql, [officerId], (err, degrees) => {
       if (err) {
         console.error("Student degree filter query failed:", err.message);
-        return res.status(500).send("Database error");
+        return renderErrorPage(res, 500, "Student Error", "Unable to load programme filters.");
       }
 
       res.render("students", { students, degrees, search });
@@ -61,7 +64,7 @@ exports.showCreateStudent = (req, res) => {
   db.query(sql, (err, degrees) => {
     if (err) {
       console.error("Student create page degree query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Student Error", "Unable to load programme options.");
     }
 
     res.render("create_student", { degrees });
@@ -74,7 +77,7 @@ exports.createStudent = (req, res) => {
   const degreeId = getInteger(req.body.degree_id, { min: 1 });
 
   if (!name || !studentNumber || !degreeId) {
-    return res.status(400).send("Valid student details are required.");
+    return redirectWithFlash(req, res, "/students/create", "error", "Valid student details are required.");
   }
 
   const sql = `
@@ -85,10 +88,10 @@ exports.createStudent = (req, res) => {
   db.query(sql, [name, studentNumber, degreeId, "Pending"], (err) => {
     if (err) {
       console.error("Create student query failed:", err.message);
-      return res.status(500).send("Error creating student");
+      return renderErrorPage(res, 500, "Student Error", "Unable to create student.");
     }
 
-    res.redirect("/students");
+    redirectWithFlash(req, res, "/students", "success", "Student created.");
   });
 };
 
@@ -96,7 +99,7 @@ exports.showEditStudent = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid student id.");
+    return redirectWithFlash(req, res, "/students", "error", "Invalid student id.");
   }
 
   const studentQuery = "SELECT * FROM students WHERE id = ?";
@@ -105,13 +108,17 @@ exports.showEditStudent = (req, res) => {
   db.query(studentQuery, [id], (err, studentResult) => {
     if (err) {
       console.error("Student lookup query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Student Error", "Unable to load student details.");
     }
 
     db.query(degreeQuery, (err, degrees) => {
       if (err) {
         console.error("Degree lookup for student edit failed:", err.message);
-        return res.status(500).send("Database error");
+        return renderErrorPage(res, 500, "Student Error", "Unable to load programme options.");
+      }
+
+      if (!studentResult || studentResult.length === 0) {
+        return renderErrorPage(res, 404, "Student Not Found", "The requested student could not be found.");
       }
 
       res.render("edit_student", {
@@ -129,7 +136,7 @@ exports.updateStudent = (req, res) => {
   const degreeId = getInteger(req.body.degree_id, { min: 1 });
 
   if (!id || !name || !studentNumber || !degreeId) {
-    return res.status(400).send("Valid student details are required.");
+    return redirectWithFlash(req, res, `/students/edit/${req.params.id}`, "error", "Valid student details are required.");
   }
 
   const sql = `
@@ -141,10 +148,10 @@ exports.updateStudent = (req, res) => {
   db.query(sql, [name, studentNumber, degreeId, id], (err) => {
     if (err) {
       console.error("Update student query failed:", err.message);
-      return res.status(500).send("Error updating student");
+      return renderErrorPage(res, 500, "Student Error", "Unable to update student.");
     }
 
-    res.redirect("/students");
+    redirectWithFlash(req, res, "/students", "success", "Student updated.");
   });
 };
 
@@ -152,7 +159,7 @@ exports.deleteStudent = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid student id.");
+    return redirectWithFlash(req, res, "/students", "error", "Invalid student id.");
   }
 
   const sql = "DELETE FROM students WHERE id = ?";
@@ -160,10 +167,10 @@ exports.deleteStudent = (req, res) => {
   db.query(sql, [id], (err) => {
     if (err) {
       console.error("Delete student query failed:", err.message);
-      return res.status(500).send("Error deleting student");
+      return renderErrorPage(res, 500, "Student Error", "Unable to delete student.");
     }
 
-    res.redirect("/students");
+    redirectWithFlash(req, res, "/students", "success", "Student deleted.");
   });
 };
 
@@ -171,7 +178,7 @@ exports.classifyStudent = (req, res) => {
   const studentId = getInteger(req.params.id, { min: 1 });
 
   if (!studentId) {
-    return res.status(400).send("Invalid student id.");
+    return redirectWithFlash(req, res, "/students", "error", "Invalid student id.");
   }
 
   const sql = `
@@ -187,119 +194,13 @@ exports.classifyStudent = (req, res) => {
   db.query(sql, [studentId], (err, results) => {
     if (err) {
       console.error("Classification lookup query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Classification Error", "Unable to load marks for classification.");
     }
 
     if (!results || results.length === 0) {
-      return res.send("No marks found for student");
+      return redirectWithFlash(req, res, "/students", "error", "No marks found for that student.");
     }
-
-    let year2Total = 0;
-    let year2Credits = 0;
-
-    let year3Total = 0;
-    let year3Credits = 0;
-
-    let hasFail = false;
-    let missingCredits = false;
-    let needsReview = false;
-
-    results.forEach((row) => {
-      let markForCalculation = row.mark;
-
-      if (row.is_resit && row.mark > 40) {
-        markForCalculation = 40;
-      }
-
-      if (markForCalculation < 40) {
-        hasFail = true;
-      }
-
-      const weighted = markForCalculation * row.credits;
-
-      if (row.year == 2) {
-        year2Total += weighted;
-        year2Credits += row.credits;
-      }
-
-      if (row.year == 3) {
-        year3Total += weighted;
-        year3Credits += row.credits;
-      }
-    });
-
-    // Prevent division by zero
-    const year2Average = year2Credits ? year2Total / year2Credits : 0;
-    const year3Average = year3Credits ? year3Total / year3Credits : 0;
-
-    // Ensure full credit requirement is met
-    if (year2Credits !== 120 || year3Credits !== 120) {
-      missingCredits = true;
-    }
-
-    const y2w = results[0].year2_weight / 100;
-    const y3w = results[0].year3_weight / 100;
-
-    const finalAverage = year2Average * y2w + year3Average * y3w;
-
-    let classification;
-
-    if (hasFail || missingCredits) {
-      classification = "Not Eligible (Fail)";
-    } else if (finalAverage >= 70) classification = "First Class Honours (1st)";
-    else if (finalAverage >= 60)
-      classification = "Upper Second Class Honours (2:1)";
-    else if (finalAverage >= 50)
-      classification = "Lower Second Class Honours (2:2)";
-    else if (finalAverage >= 40) classification = "Third Class Honours";
-    else classification = "Fail";
-
-    let rationale = `
-    Year 2 Average: ${year2Average.toFixed(2)}
-    Year 3 Average: ${year3Average.toFixed(2)}
-    
-    Final Calculation:
-    (${year2Average.toFixed(2)} × ${y2w}) + (${year3Average.toFixed(
-      2
-    )} × ${y3w})
-    
-    Final Average: ${finalAverage.toFixed(2)}
-    Classification: ${classification}
-    `;
-
-    if (year2Credits !== 120 || year3Credits !== 120) {
-      rationale +=
-        "\n⚠️ Student does not have full 120 credits for Year 2 or Year 3.";
-    }
-
-    if (hasFail) {
-      rationale +=
-        "\n⚠️ Student has failed modules → Not eligible for honours classification.";
-    }
-
-    if (missingCredits) {
-      rationale +=
-        "\n⚠️ Student does not have full 120 credits for Year 2 or Year 3.";
-    }
-
-    // Flag if student has fails
-    if (hasFail || missingCredits) {
-      needsReview = true;
-    }
-
-    // Flag borderline cases (within 1% of boundary)
-    if (
-      (finalAverage >= 69 && finalAverage < 70) ||
-      (finalAverage >= 59 && finalAverage < 60) ||
-      (finalAverage >= 49 && finalAverage < 50) ||
-      (finalAverage >= 39 && finalAverage < 40)
-    ) {
-      needsReview = true;
-    }
-
-    if (needsReview) {
-      rationale += "\n🔍 Flagged for manual review (borderline or rule issue).";
-    }
+    const outcome = calculateClassification(results);
 
     const updateSql = `
       UPDATE students
@@ -310,21 +211,27 @@ exports.classifyStudent = (req, res) => {
     db.query(
       updateSql,
       [
-        classification,
-        finalAverage,
-        year2Average,
-        year3Average,
-        rationale,
-        needsReview,
+        outcome.classification,
+        outcome.finalAverage,
+        outcome.year2Average,
+        outcome.year3Average,
+        outcome.rationale,
+        outcome.needsReview,
         studentId,
       ],
       (err) => {
         if (err) {
           console.error("Classification update query failed:", err.message);
-          return res.status(500).send("Error updating classification");
+          return renderErrorPage(res, 500, "Classification Error", "Unable to save classification results.");
         }
 
-        res.redirect("/students#student-" + studentId);
+        redirectWithFlash(
+          req,
+          res,
+          `/students#student-${studentId}`,
+          "success",
+          `Classification calculated: ${outcome.classification}.`
+        );
       }
     );
   });
@@ -334,7 +241,7 @@ exports.showOverrideForm = (req, res) => {
   const id = getInteger(req.params.id, { min: 1 });
 
   if (!id) {
-    return res.status(400).send("Invalid student id.");
+    return redirectWithFlash(req, res, "/students", "error", "Invalid student id.");
   }
 
   const sql = "SELECT * FROM students WHERE id = ?";
@@ -342,7 +249,11 @@ exports.showOverrideForm = (req, res) => {
   db.query(sql, [id], (err, result) => {
     if (err) {
       console.error("Override form query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Override Error", "Unable to load the override form.");
+    }
+
+    if (!result || result.length === 0) {
+      return renderErrorPage(res, 404, "Student Not Found", "The requested student could not be found.");
     }
 
     res.render("override_student", { student: result[0] });
@@ -358,7 +269,13 @@ exports.saveOverride = (req, res) => {
   });
 
   if (!id || !overrideClassification || !overrideReason) {
-    return res.status(400).send("A valid override classification and reason are required.");
+    return redirectWithFlash(
+      req,
+      res,
+      `/students/override/${req.params.id}`,
+      "error",
+      "A valid override classification and reason are required."
+    );
   }
 
   const sql = `
@@ -370,10 +287,10 @@ exports.saveOverride = (req, res) => {
   db.query(sql, [overrideClassification, overrideReason, id], (err) => {
     if (err) {
       console.error("Override update query failed:", err.message);
-      return res.status(500).send("Error saving override");
+      return renderErrorPage(res, 500, "Override Error", "Unable to save the override.");
     }
 
-    res.redirect("/students");
+    redirectWithFlash(req, res, "/students", "success", "Classification override saved.");
   });
 };
 
@@ -393,7 +310,7 @@ exports.getStudents = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Student export query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Student Error", "Unable to load students.");
     }
     res.render("students", { students: results });
   });
@@ -404,7 +321,7 @@ exports.showProgrammeDetails = (req, res) => {
   const officerId = req.session.user.id;
 
   if (!degreeId) {
-    return res.status(400).send("Invalid programme id.");
+    return redirectWithFlash(req, res, "/dashboard", "error", "Invalid programme id.");
   }
 
   const programmeInfoSql = `
@@ -457,35 +374,35 @@ exports.showProgrammeDetails = (req, res) => {
   db.query(programmeInfoSql, [degreeId, officerId], (err, programmeResult) => {
     if (err) {
       console.error("Programme info query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Programme Error", "Unable to load programme details.");
     }
 
     if (!programmeResult || programmeResult.length === 0) {
-      return res.send("Programme not found or access denied");
+      return renderErrorPage(res, 404, "Programme Not Found", "Programme not found or access denied.");
     }
 
     db.query(studentCountSql, [degreeId, officerId], (err, studentResult) => {
       if (err) {
         console.error("Programme student count query failed:", err.message);
-        return res.status(500).send("Database error");
+        return renderErrorPage(res, 500, "Programme Error", "Unable to load programme metrics.");
       }
 
       db.query(moduleCountSql, [degreeId, officerId], (err, moduleResult) => {
         if (err) {
           console.error("Programme module count query failed:", err.message);
-          return res.status(500).send("Database error");
+          return renderErrorPage(res, 500, "Programme Error", "Unable to load programme metrics.");
         }
 
         db.query(markCountSql, [degreeId, officerId], (err, markResult) => {
           if (err) {
             console.error("Programme mark count query failed:", err.message);
-            return res.status(500).send("Database error");
+            return renderErrorPage(res, 500, "Programme Error", "Unable to load programme metrics.");
           }
 
           db.query(classificationSql, [degreeId, officerId], (err, classifications) => {
             if (err) {
               console.error("Programme classification query failed:", err.message);
-              return res.status(500).send("Database error");
+              return renderErrorPage(res, 500, "Programme Error", "Unable to load programme metrics.");
             }
 
             res.render("programme_details", {

@@ -3,14 +3,15 @@ require("dotenv").config();
 const express = require("express");
 const helmet = require("helmet");
 const path = require("path");
-const session = require("express-session");
-
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const degreeRoutes = require("./routes/degreeRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const moduleRoutes = require("./routes/moduleRoutes");
 const markRoutes = require("./routes/markRoutes");
+const { flashMiddleware } = require("./middleware/flash");
+const { renderErrorPage } = require("./utils/rendering");
+const { createSessionMiddleware } = require("./session");
 require("./models/db");
 
 const app = express();
@@ -38,18 +39,8 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
-app.use(
-  session({
-    secret: sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: isProduction,
-      httpOnly: true,
-      sameSite: "lax",
-    },
-  })
-);
+app.use(createSessionMiddleware());
+app.use(flashMiddleware);
 
 app.use("/", adminRoutes);
 app.use("/", authRoutes);
@@ -67,7 +58,7 @@ app.get("/", (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).send("Page not found");
+  renderErrorPage(res, 404, "Page Not Found", "The page you requested could not be found.");
 });
 
 app.use((err, req, res, next) => {
@@ -77,9 +68,27 @@ app.use((err, req, res, next) => {
     return next(err);
   }
 
-  res.status(500).send(isProduction ? "An unexpected server error occurred." : "An unexpected server error occurred.");
+  renderErrorPage(
+    res,
+    500,
+    "Server Error",
+    isProduction
+      ? "An unexpected server error occurred. Please try again."
+      : `An unexpected server error occurred: ${err.message}`
+  );
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+function startServer() {
+  return app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = {
+  app,
+  startServer,
+};

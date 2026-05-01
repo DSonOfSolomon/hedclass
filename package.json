@@ -1,14 +1,17 @@
 {
-  "name": "hedclass-portfolio",
+  "name": "hedclass",
   "version": "1.0.0",
-  "description": "Portfolio deployment of a higher education classification management system built with Node.js, Express, EJS, and MySQL.",
+  "description": "A higher education classification management system built with Node.js, Express, EJS, and MySQL.",
   "main": "src/web/app.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
     "start": "node src/web/app.js",
-    "dev": "nodemon src/web/app.js"
+    "dev": "nodemon src/web/app.js",
+    "lint": "eslint \"src/web/**/*.js\" \"test/**/*.js\"",
+    "test": "node --test",
+    "check": "npm run lint && npm test"
   },
   "keywords": [],
   "author": "",
@@ -23,12 +26,15 @@
     "dotenv": "^16.6.1",
     "ejs": "^5.0.1",
     "express": "^5.2.1",
+    "express-mysql-session": "^3.0.3",
     "express-rate-limit": "^8.1.0",
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",
     "mysql2": "^3.19.1"
   },
   "devDependencies": {
+    "eslint": "^9.39.1",
+    "mock-require": "^3.0.3",
     "nodemon": "^3.1.14"
   }
 }

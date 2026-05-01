@@ -1,6 +1,8 @@
 const db = require("../models/db");
 const bcrypt = require("bcrypt");
+const { setFlash } = require("../middleware/flash");
 const { getEmail, getTrimmedString } = require("../utils/validation");
+const { renderErrorPage } = require("../utils/rendering");
 
 exports.showLogin = (req, res) => {
   if (req.session.user) {
@@ -10,7 +12,7 @@ exports.showLogin = (req, res) => {
       return res.redirect("/dashboard");
     }
   }
-  res.render("login");
+  res.render("login", { formData: { email: "" } });
 };
 
 /*
@@ -21,7 +23,10 @@ exports.login = (req, res) => {
   const password = getTrimmedString(req.body.password, { required: true, maxLength: 255 });
 
   if (!email || !password) {
-    return res.status(400).send("A valid email and password are required.");
+    return res.status(400).render("login", {
+      error: "A valid email and password are required.",
+      formData: { email: req.body.email || "" },
+    });
   }
 
   const sql = "SELECT * FROM users WHERE email = ?";
@@ -29,11 +34,14 @@ exports.login = (req, res) => {
   db.query(sql, [email], async (err, results) => {
     if (err) {
       console.error("Login query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Login Error", "The login service is temporarily unavailable.");
     }
 
     if (results.length === 0) {
-      return res.status(401).send("Invalid email or password.");
+      return res.status(401).render("login", {
+        error: "Invalid email or password.",
+        formData: { email },
+      });
     }
 
     const user = results[0];
@@ -43,11 +51,14 @@ exports.login = (req, res) => {
       match = await bcrypt.compare(password, user.password);
     } catch (compareError) {
       console.error("Password comparison failed:", compareError.message);
-      return res.status(500).send("Unable to process login.");
+      return renderErrorPage(res, 500, "Login Error", "Unable to process login at the moment.");
     }
 
     if (!match) {
-      return res.status(401).send("Invalid email or password.");
+      return res.status(401).render("login", {
+        error: "Invalid email or password.",
+        formData: { email },
+      });
     }
 
     req.session.user = {
@@ -56,6 +67,8 @@ exports.login = (req, res) => {
       email: user.email,
       role: user.role,
     };
+
+    setFlash(req, "success", `Signed in as ${user.name}.`);
 
     if (user.role === "admin") {
       return res.redirect("/admin/dashboard");
@@ -126,36 +139,36 @@ const classificationQuery = `
   db.query(studentCountQuery, [officerId], (err, studentResult) => {
     if (err) {
       console.error("Dashboard student query failed:", err.message);
-      return res.status(500).send("Database error");
+      return renderErrorPage(res, 500, "Dashboard Error", "Unable to load dashboard metrics.");
     }
 
     db.query(degreeCountQuery, [officerId], (err, degreeResult) => {
       if (err) {
         console.error("Dashboard degree query failed:", err.message);
-        return res.status(500).send("Database error");
+        return renderErrorPage(res, 500, "Dashboard Error", "Unable to load dashboard metrics.");
       }
 
       db.query(classificationQuery, [officerId], (err, classResults) => {
         if (err) {
           console.error("Dashboard classification query failed:", err.message);
-          return res.status(500).send("Database error");
+          return renderErrorPage(res, 500, "Dashboard Error", "Unable to load dashboard metrics.");
         }
         db.query(moduleCountQuery, [officerId], (err, moduleResult) => {
           if (err) {
             console.error("Dashboard module query failed:", err.message);
-            return res.status(500).send("Database error");
+            return renderErrorPage(res, 500, "Dashboard Error", "Unable to load dashboard metrics.");
           }
 
           db.query(programmeQuery, [officerId], (err, programmeResults) => {
             if (err) {
               console.error("Dashboard programme query failed:", err.message);
-              return res.status(500).send("Database error");
+              return renderErrorPage(res, 500, "Dashboard Error", "Unable to load dashboard metrics.");
             }
 
             db.query(assignedDegreesQuery, [officerId], (err, assignedResults) => {
               if (err) {
                 console.error("Dashboard assigned degrees query failed:", err.message);
-                return res.status(500).send("Database error");
+                return renderErrorPage(res, 500, "Dashboard Error", "Unable to load dashboard metrics.");
               }
 
             res.render("dashboard", {
