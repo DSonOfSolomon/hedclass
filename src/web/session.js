@@ -19,15 +19,13 @@ function createSessionMiddleware() {
   const isProduction = process.env.NODE_ENV === "production";
   const sessionSecret = process.env.SESSION_SECRET;
 
-  const store = new MySQLStore(
-    {
-      clearExpired: true,
-      checkExpirationInterval: 15 * 60 * 1000,
-      expiration: 24 * 60 * 60 * 1000,
-      createDatabaseTable: true,
-    },
-    getDatabaseConfig()
-  );
+  const store = new MySQLStore({
+    ...getDatabaseConfig(),
+    clearExpired: true,
+    checkExpirationInterval: 15 * 60 * 1000,
+    expiration: 24 * 60 * 60 * 1000,
+    createDatabaseTable: true,
+  });
 
   return session({
     secret: sessionSecret,
