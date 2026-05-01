@@ -15,17 +15,23 @@ function createSessionMiddleware() {
   }
 
   const MySQLStore = require("express-mysql-session")(session);
+  const mysql = require("mysql2/promise");
   const { getDatabaseConfig } = require("./config/database");
   const isProduction = process.env.NODE_ENV === "production";
   const sessionSecret = process.env.SESSION_SECRET;
+  const connection = mysql.createPool({
+    ...getDatabaseConfig(),
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
 
   const store = new MySQLStore({
-    ...getDatabaseConfig(),
     clearExpired: true,
     checkExpirationInterval: 15 * 60 * 1000,
     expiration: 24 * 60 * 60 * 1000,
     createDatabaseTable: true,
-  });
+  }, connection);
 
   return session({
     secret: sessionSecret,
