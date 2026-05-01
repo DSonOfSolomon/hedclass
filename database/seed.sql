@@ -8,6 +8,7 @@ TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO users (id, name, email, password, role) VALUES
+  (1, 'Admin', 'admin@hed.com', '$2b$10$i7PZgV/18SGwtg95OHdxzOhCG4jQ.Hsh4R8rsuZlyXfUhegtAERdm', 'admin'),
   (2, 'Alex Carter', 'alex.carter@hed.com', '$2b$10$wo/aeaWytFIVUKlaPcWhwur9/zAzg7cuo01RBkn.x4LxJhRWFi3aG', 'officer'),
   (3, 'Sam Rivera', 'sam.rivera@hed.com', '$2b$10$06jFcKuc.F6WptJ8DHQpSOvVG3d.YbLv.MH3zW/KD0sIsXlOJXZeC', 'officer');
 

@@ -12,13 +12,25 @@ Live demo: [https://hedclass.onrender.com](https://hedclass.onrender.com)
 
 ## Screenshots
 
-Screenshots can be added here to support the live demo:
+### Login
 
-- Login page
-- Officer dashboard
-- Student management
-- Marks and classification views
-- Admin degree and assignment pages
+![Login page](./docs/screenshots/login-page.png)
+
+### Admin Dashboard
+
+![Admin dashboard](./docs/screenshots/admin-dashboard.png)
+
+### Students and Classification
+
+![Students page](./docs/screenshots/students-page.png)
+
+### Officer Dashboard
+
+![Officer dashboard](./docs/screenshots/officer-dashboard.png)
+
+### Module Marks
+
+![Marks page](./docs/screenshots/marks-page.png)
 
 Current live deployment: [https://hedclass.onrender.com](https://hedclass.onrender.com)
 
