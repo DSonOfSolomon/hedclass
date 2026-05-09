@@ -259,7 +259,7 @@ npm run check
 ## Project Structure
 
 ```text
-40490439/
+hedclass/
 ├── database/
 │   ├── schema.sql
 │   └── seed.sql
