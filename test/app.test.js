@@ -1,10 +1,11 @@
+const path = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const bcrypt = require("bcrypt");
 const mock = require("mock-require");
 
-const webRoot = "/Users/dannycanary/40490439/src/web/";
-const dbPath = "/Users/dannycanary/40490439/src/web/models/db.js";
+const webRoot = path.resolve(__dirname, "../src/web");
+const dbPath = path.join(webRoot, "models", "db.js");
 
 function clearWebModules() {
   for (const key of Object.keys(require.cache)) {
@@ -54,7 +55,7 @@ function loadModule(relativePath, handlers) {
   mock.stopAll();
   clearWebModules();
   mock(dbPath, createMockDb(handlers));
-  return require(`/Users/dannycanary/40490439/src/web/${relativePath}`);
+  return require(path.join(webRoot, relativePath));
 }
 
 function createResponse() {
