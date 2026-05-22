@@ -1,4 +1,4 @@
-const db = require("../models/db");
+const Export = require("../models/exportModel");
 const { redirectWithFlash } = require("../middleware/flash");
 const { renderErrorPage } = require("../utils/rendering");
 const { getInteger } = require("../utils/validation");
@@ -15,34 +15,14 @@ exports.exportCSV = (req, res) => {
     return redirectWithFlash(req, res, "/dashboard", "error", "Please select a valid programme to export.");
   }
 
-  const sql = `
-    SELECT 
-      students.name,
-      students.student_number,
-      degrees.name AS degree,
-      students.classification,
-      students.override_classification,
-      students.final_average,
-      students.rationale,
-      students.override_reason
-    FROM students
-    JOIN degrees ON students.degree_id = degrees.id
-    JOIN officer_degrees ON students.degree_id = officer_degrees.degree_id
-    WHERE officer_degrees.officer_id = ?
-    AND students.degree_id = ?
-  `;
-
-  db.query(sql, [officerId, degreeId], (err, results) => {
+  Export.findProgrammeClassificationRows({ officerId, degreeId }, (err, results) => {
     if (err) {
       console.error("CSV export query failed:", err.message);
       return renderErrorPage(res, 500, "Export Error", "Unable to export this programme right now.");
     }
 
-    // CSV header
-    let csv = 
-    "Name,Student Number,Degree,System Classification,Override Classification, Final Average, Rationale, Override Reason\n";
+    let csv = "Name,Student Number,Degree,System Classification,Override Classification, Final Average, Rationale, Override Reason\n";
 
-    
     results.forEach((row) => {
       const safeRationale = (row.rationale || "").replace(/"/g, '""').replace(/\n/g, " ");
       const safeOverrideReason = (row.override_reason || "").replace(/"/g, '""').replace(/\n/g, " ");

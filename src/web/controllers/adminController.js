@@ -1,23 +1,22 @@
-const db = require("../models/db");
 const bcrypt = require("bcrypt");
+const Assignment = require("../models/assignmentModel");
+const User = require("../models/userModel");
 const { redirectWithFlash } = require("../middleware/flash");
 const { renderErrorPage } = require("../utils/rendering");
 const { getEmail, getInteger, getTrimmedString } = require("../utils/validation");
 
-exports.listOfficers = (req, res) => {
-  const sql = "SELECT * FROM users WHERE role = 'officer'";
-
-  db.query(sql, (err, results) => {
+exports.listOfficers = (_req, res) => {
+  User.findOfficers((err, officers) => {
     if (err) {
       console.error("Officer list query failed:", err.message);
       return renderErrorPage(res, 500, "Officer Error", "Unable to load classification officers.");
     }
 
-    res.render("admin_officers", { officers: results });
+    res.render("admin_officers", { officers });
   });
 };
 
-exports.showCreateOfficer = (req, res) => {
+exports.showCreateOfficer = (_req, res) => {
   res.render("create_officer");
 };
 
@@ -45,12 +44,7 @@ exports.createOfficer = async (req, res) => {
     return renderErrorPage(res, 500, "Officer Error", "Unable to create officer right now.");
   }
 
-  const sql = `
-        INSERT INTO users (name, email, password, role)
-        VALUES (?, ?, ?, 'officer')
-    `;
-
-  db.query(sql, [name, email, hashedPassword], (err) => {
+  User.createOfficer({ name, email, hashedPassword }, (err) => {
     if (err) {
       console.error("Create officer query failed:", err.message);
       return redirectWithFlash(req, res, "/admin/officers/create", "error", "Unable to create officer.");
@@ -67,9 +61,7 @@ exports.deleteOfficer = (req, res) => {
     return redirectWithFlash(req, res, "/admin/officers", "error", "Invalid officer id.");
   }
 
-  const sql = "DELETE FROM users WHERE id = ?";
-
-  db.query(sql, [officerId], (err) => {
+  User.deleteById(officerId, (err) => {
     if (err) {
       console.error("Delete officer query failed:", err.message);
       return renderErrorPage(res, 500, "Officer Error", "Unable to delete officer.");
@@ -79,40 +71,27 @@ exports.deleteOfficer = (req, res) => {
   });
 };
 
-exports.showAssignPage = (req, res) => {
-  const officersQuery = "SELECT * FROM users WHERE role = 'officer'";
-  const degreesQuery = `
-  SELECT * 
-  FROM degrees
-  WHERE id NOT IN (
-  SELECT degree_ID
-  FROM officer_degrees)
-  `;
-
-  db.query(officersQuery, (err, officers) => {
+exports.showAssignPage = (_req, res) => {
+  User.findOfficers((err, officers) => {
     if (err) {
       console.error("Assign page officers query failed:", err.message);
       return renderErrorPage(res, 500, "Assignment Error", "Unable to load officers.");
     }
 
-    db.query(degreesQuery, (err, degrees) => {
+    Assignment.findUnassignedDegrees((err, degrees) => {
       if (err) {
         console.error("Assign page degrees query failed:", err.message);
         return renderErrorPage(res, 500, "Assignment Error", "Unable to load degrees.");
       }
 
       res.render("assign_officer", {
-        officers: officers,
-        degrees: degrees,
+        officers,
+        degrees,
       });
     });
   });
 };
 
-/*
-Assign officer to degree
-Prevents duplicate assignments
-*/
 exports.assignOfficer = (req, res) => {
   const officerId = getInteger(req.body.officer_id, { min: 1 });
   const degreeId = getInteger(req.body.degree_id, { min: 1 });
@@ -121,20 +100,13 @@ exports.assignOfficer = (req, res) => {
     return redirectWithFlash(req, res, "/admin/assign", "error", "A valid officer and degree are required.");
   }
 
-  // First check if this assignment already exists
-  const checkSql = `
-    SELECT * FROM officer_degrees
-    WHERE degree_id = ?
-    `;
-
-  db.query(checkSql, [degreeId], (err, results) => {
+  Assignment.findByDegreeId(degreeId, (err, assignments) => {
     if (err) {
       console.error("Assignment check query failed:", err.message);
       return renderErrorPage(res, 500, "Assignment Error", "Unable to validate the assignment.");
     }
 
-    // If assignment already exists, do not insert again
-    if (results.length > 0) {
+    if (assignments.length > 0) {
       return redirectWithFlash(
         req,
         res,
@@ -144,13 +116,7 @@ exports.assignOfficer = (req, res) => {
       );
     }
 
-    // Insert new assignment
-    const insertSql = `
-        INSERT INTO officer_degrees (officer_id, degree_id)
-        VALUES (?, ?)
-        `;
-
-    db.query(insertSql, [officerId, degreeId], (err) => {
+    Assignment.create({ officerId, degreeId }, (err) => {
       if (err) {
         console.error("Assignment insert query failed:", err.message);
         return renderErrorPage(res, 500, "Assignment Error", "Unable to assign officer.");
@@ -168,24 +134,24 @@ exports.dashboard = (req, res) => {
 };
 
 exports.showEditOfficer = (req, res) => {
-  const id = req.params.id;
+  const id = getInteger(req.params.id, { min: 1 });
 
-  db.query(
-    "SELECT * FROM users WHERE id = ? AND role = 'officer'",
-    [id],
-    (err, result) => {
-      if (err) {
-        console.error("Officer lookup query failed:", err.message);
-        return renderErrorPage(res, 500, "Officer Error", "Unable to load officer details.");
-      }
+  if (!id) {
+    return redirectWithFlash(req, res, "/admin/officers", "error", "Invalid officer id.");
+  }
 
-      if (!result || result.length === 0) {
-        return renderErrorPage(res, 404, "Officer Not Found", "The requested officer could not be found.");
-      }
-
-      res.render("edit_officer", { officer: result[0] });
+  User.findOfficerById(id, (err, officer) => {
+    if (err) {
+      console.error("Officer lookup query failed:", err.message);
+      return renderErrorPage(res, 500, "Officer Error", "Unable to load officer details.");
     }
-  );
+
+    if (!officer) {
+      return renderErrorPage(res, 404, "Officer Not Found", "The requested officer could not be found.");
+    }
+
+    res.render("edit_officer", { officer });
+  });
 };
 
 exports.updateOfficer = (req, res) => {
@@ -197,37 +163,24 @@ exports.updateOfficer = (req, res) => {
     return redirectWithFlash(req, res, `/admin/officers/edit/${req.params.id}`, "error", "Valid officer details are required.");
   }
 
-  db.query(
-    "UPDATE users SET name = ?, email = ? WHERE id = ? AND role = 'officer'",
-    [name, email, id],
-    (err) => {
-      if (err) {
-        console.error("Officer update query failed:", err.message);
-        return renderErrorPage(res, 500, "Officer Error", "Unable to update officer details.");
-      }
-
-      redirectWithFlash(req, res, "/admin/officers", "success", "Officer details updated.");
+  User.updateOfficer({ id, name, email }, (err) => {
+    if (err) {
+      console.error("Officer update query failed:", err.message);
+      return renderErrorPage(res, 500, "Officer Error", "Unable to update officer details.");
     }
-  );
+
+    redirectWithFlash(req, res, "/admin/officers", "success", "Officer details updated.");
+  });
 };
 
-exports.listAssignments = (req, res) => {
-  const sql = `
-    SELECT officer_degrees.id,
-           users.name AS officer_name,
-           degrees.name AS degree_name
-    FROM officer_degrees
-    JOIN users ON officer_degrees.officer_id = users.id
-    JOIN degrees ON officer_degrees.degree_id = degrees.id
-  `;
-
-  db.query(sql, (err, results) => {
+exports.listAssignments = (_req, res) => {
+  Assignment.findAllWithNames((err, assignments) => {
     if (err) {
       console.error("Assignments query failed:", err.message);
       return renderErrorPage(res, 500, "Assignment Error", "Unable to load assignments.");
     }
 
-    res.render("manage_assignments", { assignments: results });
+    res.render("manage_assignments", { assignments });
   });
 };
 
@@ -238,7 +191,7 @@ exports.unassignOfficer = (req, res) => {
     return redirectWithFlash(req, res, "/admin/assignments", "error", "Invalid assignment id.");
   }
 
-  db.query("DELETE FROM officer_degrees WHERE id = ?", [id], (err) => {
+  Assignment.deleteById(id, (err) => {
     if (err) {
       console.error("Unassign query failed:", err.message);
       return renderErrorPage(res, 500, "Assignment Error", "Unable to remove assignment.");

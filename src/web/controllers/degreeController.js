@@ -1,22 +1,20 @@
-const db = require("../models/db");
+const Degree = require("../models/degreeModel");
 const { redirectWithFlash } = require("../middleware/flash");
 const { renderErrorPage } = require("../utils/rendering");
 const { getInteger, getTrimmedString } = require("../utils/validation");
 
-exports.listDegrees = (req, res) => {
-  const sql = "SELECT * FROM degrees";
-
-  db.query(sql, (err, results) => {
+exports.listDegrees = (_req, res) => {
+  Degree.findAll((err, degrees) => {
     if (err) {
       console.error("Degree list query failed:", err.message);
       return renderErrorPage(res, 500, "Programme Error", "Unable to load programmes.");
     }
 
-    res.render("admin_degrees", { degrees: results });
+    res.render("admin_degrees", { degrees });
   });
 };
 
-exports.showCreateDegree = (req, res) => {
+exports.showCreateDegree = (_req, res) => {
   res.render("create_degree");
 };
 
@@ -36,12 +34,7 @@ exports.createDegree = (req, res) => {
     );
   }
 
-  const sql = `
-    INSERT INTO degrees (name, description, year2_weight, year3_weight)
-    VALUES (?, ?, ?, ?)
-  `;
-
-  db.query(sql, [name, description, year2Weight, year3Weight], (err) => {
+  Degree.create({ name, description, year2Weight, year3Weight }, (err) => {
     if (err) {
       console.error("Create degree query failed:", err.message);
       return renderErrorPage(res, 500, "Programme Error", "Unable to create programme.");
@@ -58,9 +51,7 @@ exports.deleteDegree = (req, res) => {
     return redirectWithFlash(req, res, "/admin/degrees", "error", "Invalid programme id.");
   }
 
-  const sql = "DELETE FROM degrees WHERE id = ?";
-
-  db.query(sql, [degreeId], (err) => {
+  Degree.deleteById(degreeId, (err) => {
     if (err) {
       console.error("Delete degree query failed:", err.message);
       return renderErrorPage(res, 500, "Programme Error", "Unable to delete programme.");
@@ -77,17 +68,17 @@ exports.showEditDegree = (req, res) => {
     return redirectWithFlash(req, res, "/admin/degrees", "error", "Invalid programme id.");
   }
 
-  db.query("SELECT * FROM degrees WHERE id = ?", [id], (err, result) => {
+  Degree.findById(id, (err, degree) => {
     if (err) {
       console.error("Degree lookup query failed:", err.message);
       return renderErrorPage(res, 500, "Programme Error", "Unable to load programme details.");
     }
 
-    if (!result || result.length === 0) {
+    if (!degree) {
       return renderErrorPage(res, 404, "Programme Not Found", "The requested programme could not be found.");
     }
 
-    res.render("edit_degree", { degree: result[0] });
+    res.render("edit_degree", { degree });
   });
 };
 
@@ -100,16 +91,12 @@ exports.updateDegree = (req, res) => {
     return redirectWithFlash(req, res, `/admin/degrees/edit/${req.params.id}`, "error", "Valid programme details are required.");
   }
 
-  db.query(
-    "UPDATE degrees SET name = ?, description = ? WHERE id = ?",
-    [name, description, id],
-    (err) => {
-      if (err) {
-        console.error("Degree update query failed:", err.message);
-        return renderErrorPage(res, 500, "Programme Error", "Unable to update programme details.");
-      }
-
-      redirectWithFlash(req, res, "/admin/degrees", "success", "Programme updated.");
+  Degree.update({ id, name, description }, (err) => {
+    if (err) {
+      console.error("Degree update query failed:", err.message);
+      return renderErrorPage(res, 500, "Programme Error", "Unable to update programme details.");
     }
-  );
+
+    redirectWithFlash(req, res, "/admin/degrees", "success", "Programme updated.");
+  });
 };
